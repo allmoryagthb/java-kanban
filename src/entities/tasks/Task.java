@@ -16,6 +16,7 @@ public class Task extends BaseTask {
     public String toString() {
         return "Task{" +
                 "taskNum=" + taskId +
+                ", title=" + title +
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';

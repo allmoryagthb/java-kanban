@@ -30,7 +30,9 @@ public class Epic extends BaseTask {
     public String toString() {
         return "Epic{" +
                 "id=" + taskId +
+                ", title=" + title +
                 ", description=" + description +
+                ", status=" + status +
                 ", subtasks=" + subtasks +
                 '}';
     }

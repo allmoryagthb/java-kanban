@@ -1,15 +1,14 @@
 package entities.manager;
 
 import entities.tasks.BaseTask;
-import entities.tasks.Task;
 import enums.Status;
 
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class BaseTaskManager<T extends BaseTask> {
-    private Map<Integer, T> genericMap;
+public abstract class BaseTaskManager<T extends BaseTask> {
+    protected Map<Integer, T> genericMap;
 
     public BaseTaskManager() {
         this.genericMap = new TreeMap<>();
@@ -20,7 +19,15 @@ public class BaseTaskManager<T extends BaseTask> {
     }
 
     public void addTask(T task) {
-        genericMap.put(task.getTaskId(), task);
+        if (genericMap.get(task.getTaskId()) != null && genericMap.get(task.getTaskId()).getStatus() == Status.NEW) {
+            task.setStatus(Status.IN_PROGRESS);
+            genericMap.put(task.getTaskId(), task);
+        } else if (genericMap.get(task.getTaskId()) != null && genericMap.get(task.getTaskId()).getStatus() == Status.IN_PROGRESS) {
+            task.setStatus(Status.DONE);
+            genericMap.put(task.getTaskId(), task);
+        } else {
+            genericMap.put(task.getTaskId(), task);
+        }
     }
 
     public T getTaskById(int id) {
@@ -47,7 +54,7 @@ public class BaseTaskManager<T extends BaseTask> {
         genericMap.remove(id);
     }
 
-    private void checkTaskIsExistsById(int id) {
+    protected void checkTaskIsExistsById(int id) {
         try {
             if (genericMap.get(id) == null)
                 throw new Exception();
