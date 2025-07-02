@@ -72,5 +72,27 @@ public class Main {
         manager.epics.changeTaskStatusById(6, Status.IN_PROGRESS);
 
         System.out.println("\n-----\n");
+
+        manager.subtasks.addTask(new Subtask(7, "Subtask 1 title upd1", "description", epic1));
+        System.out.println(manager.subtasks.getTaskList());
+        System.out.println(manager.epics.getTaskList());
+        manager.subtasks.addTask(new Subtask(8, "Subtask 2 title upd1", "description", epic1));
+        System.out.println(manager.subtasks.getTaskList());
+        System.out.println(manager.epics.getTaskList());
+
+        System.out.println("\n-----\n");
+
+        manager.subtasks.addTask(new Subtask(8, "Subtask 2 title upd2", "description", epic1));
+        System.out.println(manager.subtasks.getTaskList());
+        System.out.println(manager.epics.getTaskList());
+        manager.subtasks.addTask(new Subtask(7, "Subtask 1 title upd2", "description", epic1));
+        System.out.println(manager.subtasks.getTaskList());
+        System.out.println(manager.epics.getTaskList());
+
+        System.out.println("\n-----\n");
+
+        manager.subtasks.addTask(new Subtask("Subtask 3 title", "description", epic1));
+        System.out.println(manager.subtasks.getTaskList());
+        System.out.println(manager.epics.getTaskList());
     }
 }

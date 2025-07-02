@@ -1,12 +1,9 @@
 package entities.tasks;
 
-import enums.Status;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Epic extends BaseTask {
-    private List<Subtask> subtasks = new ArrayList<>();
+    private Map<Integer, Subtask> subtasks = new TreeMap<>();
 
     public Epic(String title, String description) {
         super(title, description);
@@ -19,10 +16,10 @@ public class Epic extends BaseTask {
     }
 
     public void addSubtask(Subtask subtask) {
-        subtasks.add(subtask);
+        subtasks.put(subtask.getTaskId(), subtask);
     }
 
-    public List<Subtask> getSubtasks() {
+    public Map<Integer, Subtask> getSubtasks() {
         return subtasks;
     }
 

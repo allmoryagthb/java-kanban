@@ -1,5 +1,7 @@
 package entities.tasks;
 
+import enums.Status;
+
 import static enums.Status.*;
 
 public class Subtask extends Task {
@@ -17,11 +19,16 @@ public class Subtask extends Task {
         this.epic = epic;
         epic.addSubtask(this);
         print();
-        tryToChangeEpicStatus();
     }
 
     public Epic getEpic() {
         return epic;
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        this.status = status;
+        tryToChangeEpicStatus();
     }
 
     /**
@@ -30,9 +37,11 @@ public class Subtask extends Task {
     private void tryToChangeEpicStatus() {
         if (this.status == NEW) {
             epic.setStatus(NEW);
-        } else if (this.status == IN_PROGRESS && epic.getSubtasks().stream().noneMatch(e -> e.getStatus() == NEW)) {
+        } else if (this.status == IN_PROGRESS && epic.getSubtasks().values().stream()
+                .noneMatch(e -> e.getStatus() == NEW)) {
             epic.setStatus(IN_PROGRESS);
-        } else if (this.status == DONE && epic.getSubtasks().stream().noneMatch(e -> e.getStatus() == IN_PROGRESS)) {
+        } else if (this.status == DONE && epic.getSubtasks().values().stream()
+                .noneMatch(e -> e.getStatus() == IN_PROGRESS)) {
             epic.setStatus(DONE);
         }
     }

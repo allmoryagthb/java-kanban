@@ -27,6 +27,7 @@ public abstract class BaseTaskManager<T extends BaseTask> {
             genericMap.put(task.getTaskId(), task);
         } else {
             genericMap.put(task.getTaskId(), task);
+            task.setStatus(task.getStatus());
         }
     }
 
