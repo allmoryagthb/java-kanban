@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static enums.Status.*;
+
 public abstract class BaseTaskManager<T extends BaseTask> {
     protected Map<Integer, T> genericMap;
 
@@ -19,31 +21,34 @@ public abstract class BaseTaskManager<T extends BaseTask> {
     }
 
     public void addTask(T task) {
-        if (genericMap.get(task.getTaskId()) != null && genericMap.get(task.getTaskId()).getStatus() == Status.NEW) {
-            task.setStatus(Status.IN_PROGRESS);
+        if (genericMap.get(task.getTaskId()) != null && genericMap.get(task.getTaskId()).getStatus() == NEW) {
+            task.setStatus(IN_PROGRESS);
             genericMap.put(task.getTaskId(), task);
-        } else if (genericMap.get(task.getTaskId()) != null && genericMap.get(task.getTaskId()).getStatus() == Status.IN_PROGRESS) {
-            task.setStatus(Status.DONE);
+        } else if (genericMap.get(task.getTaskId()) != null &&
+                (genericMap.get(task.getTaskId()).getStatus() == IN_PROGRESS ||
+                        genericMap.get(task.getTaskId()).getStatus() == DONE)) {
+            task.setStatus(DONE);
             genericMap.put(task.getTaskId(), task);
         } else {
+            task.setStatus(NEW);
             genericMap.put(task.getTaskId(), task);
-            task.setStatus(task.getStatus());
         }
     }
 
     public T getTaskById(int id) {
-        checkTaskIsExistsById(id);
-        return genericMap.get(id);
+        if (checkTaskIsExistsById(id))
+            return genericMap.get(id);
+        return null;
     }
 
     public void changeTaskDescriptionById(int id, String description) {
-        checkTaskIsExistsById(id);
-        genericMap.get(id).setDescription(description);
+        if (checkTaskIsExistsById(id))
+            genericMap.get(id).setDescription(description);
     }
 
     public void changeTaskStatusById(int id, Status newStatus) {
-        checkTaskIsExistsById(id);
-        genericMap.get(id).setStatus(newStatus);
+        if (checkTaskIsExistsById(id))
+            genericMap.get(id).setStatus(newStatus);
     }
 
     public void deleteAllTasks() {
@@ -51,16 +56,20 @@ public abstract class BaseTaskManager<T extends BaseTask> {
     }
 
     public void deleteTaskById(int id) {
-        checkTaskIsExistsById(id);
-        genericMap.remove(id);
+        if (checkTaskIsExistsById(id))
+            genericMap.remove(id);
     }
 
-    protected void checkTaskIsExistsById(int id) {
-        try {
-            if (genericMap.get(id) == null)
-                throw new Exception();
-        } catch (Exception e) {
-            System.out.printf(">>>ОШИБКА: Задача с id = '%d' не найдена!%n", id);
+    protected boolean checkTaskIsExistsById(int id) {
+        if (genericMap.containsKey(id)) {
+            return true;
         }
+        System.out.printf(">>>ОШИБКА: Задача с id = '%d' не найдена!%n", id);
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return genericMap.toString();
     }
 }

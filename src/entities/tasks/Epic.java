@@ -7,12 +7,10 @@ public class Epic extends BaseTask {
 
     public Epic(String title, String description) {
         super(title, description);
-        print();
     }
 
     public Epic(int id, String title, String description) {
         super(id, title, description);
-        print();
     }
 
     public void addSubtask(Subtask subtask) {
@@ -32,9 +30,5 @@ public class Epic extends BaseTask {
                 ", status=" + status +
                 ", subtasks=" + subtasks +
                 '}';
-    }
-
-    private void print() {
-        System.out.printf("Создан новый эпик '%s' с id = '%d'%n", description, taskId);
     }
 }

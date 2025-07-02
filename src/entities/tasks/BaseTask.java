@@ -4,6 +4,8 @@ import enums.Status;
 
 import java.util.Objects;
 
+import static enums.Status.NEW;
+
 public abstract class BaseTask {
 
     protected static int taskIdCounter;
@@ -16,14 +18,14 @@ public abstract class BaseTask {
         this.taskId = ++taskIdCounter;
         this.title = title;
         this.description = description;
-        this.status = Status.NEW;
+        this.status = NEW;
     }
 
     public BaseTask(int id, String title, String description) {
         this.taskId = id;
         this.title = title;
         this.description = description;
-        this.status = Status.NEW;
+        this.status = NEW;
     }
 
     public int getTaskId() {

@@ -13,86 +13,120 @@ public class Main {
     private static void checkManager() {
         Manager manager = new Manager();
 
-        manager.tasks.addTask(new Task("Task 1", "Description for tasks 1"));
-        manager.tasks.addTask(new Task("Task 2", "Description for tasks 2"));
-        manager.tasks.addTask(new Task("Task 3", "Description for tasks 3"));
-        manager.tasks.addTask(new Task("Task 4", "Description for tasks 4"));
-        manager.tasks.addTask(new Task("Task 5", "Description for tasks 5"));
+        Task task1 = new Task("task1 title", "task1 description");
+        Task task2 = new Task("task2 title", "task2 description");
+        Task task3 = new Task("task3 title", "task3 description");
 
-        manager.tasks.getTaskById(1);
-        manager.tasks.getTaskById(2);
-        manager.tasks.getTaskById(3);
-        manager.tasks.getTaskById(4);
-        manager.tasks.getTaskById(5);
-        manager.tasks.getTaskById(6);
-        manager.tasks.getTaskList().forEach(System.out::println);
+        Epic epic1 = new Epic("epic1 title", "epic1 description");
+        Epic epic2 = new Epic("epic2 title", "epic2 description");
 
-        System.out.println("\n-----\n");
-
-        manager.tasks.deleteTaskById(3);
-        manager.tasks.getTaskById(3);
-        manager.tasks.getTaskList().forEach(System.out::println);
-
-        System.out.println("\n-----\n");
-
-        manager.tasks.changeTaskDescriptionById(2, "Task 2 edited description");
-        System.out.println(manager.tasks.getTaskById(2));
-
-        System.out.println("\n-----\n");
-
-        manager.tasks.changeTaskStatusById(4, Status.IN_PROGRESS);
-        System.out.println(manager.tasks.getTaskById(4));
-        manager.tasks.getTaskList().forEach(System.out::println);
-
-        System.out.println("\n-----\n");
-
-        manager.tasks.addTask(new Task(2, "Task 2 new instance upd1",
-                "Task 2 new instance description upd1"));
-        System.out.println(manager.tasks.getTaskById(2));
-
-        manager.tasks.addTask(new Task(2, "Task 2 new instance upd2",
-                "Task 2 new instance description upd2"));
-        System.out.println(manager.tasks.getTaskById(2));
-
-        System.out.println("\n-----\n");
-
-        Epic epic1 = new Epic("Epic 1 Title", "Epic 1 description");
-        manager.epics.addTask(epic1);
-        System.out.println(manager.epics.getTaskById(6));
-
-        Subtask subtask1 = new Subtask("Subtask 1 title", "Subtask 1 description", epic1);
-        Subtask subtask2 = new Subtask("Subtask 1 title", "Subtask 1 description", epic1);
+        Subtask subtask1 = new Subtask("subtask1 title", "subtitle1 description", epic1);
+        Subtask subtask2 = new Subtask("subtask2 title", "subtitle2 description", epic2);
+        Subtask subtask3 = new Subtask("subtask3 title", "subtitle3 description", epic2);
 
         manager.subtasks.addTask(subtask1);
         manager.subtasks.addTask(subtask2);
-        System.out.println(manager.subtasks.getTaskList());
+        manager.subtasks.addTask(subtask3);
 
-        System.out.println("\n-----\n");
+        System.out.println("\n=====\n");
+        manager.tasks.addTask(task1);
+        manager.tasks.addTask(task2);
+        manager.tasks.addTask(task2);
+        manager.tasks.addTask(task3);
+        manager.tasks.addTask(task3);
+        manager.tasks.addTask(task3);
+        manager.tasks.addTask(new Task(3, "task 3 new upd", "task3 description"));
+        System.out.println(manager.tasks.getTaskList());
 
-        manager.epics.changeTaskStatusById(6, Status.IN_PROGRESS);
+        System.out.println("\n=====\n");
+        manager.tasks.addTask(task3);
+        System.out.println(manager.tasks.getTaskList());
 
-        System.out.println("\n-----\n");
-
-        manager.subtasks.addTask(new Subtask(7, "Subtask 1 title upd1", "description", epic1));
-        System.out.println(manager.subtasks.getTaskList());
-        System.out.println(manager.epics.getTaskList());
-        manager.subtasks.addTask(new Subtask(8, "Subtask 2 title upd1", "description", epic1));
-        System.out.println(manager.subtasks.getTaskList());
-        System.out.println(manager.epics.getTaskList());
-
-        System.out.println("\n-----\n");
-
-        manager.subtasks.addTask(new Subtask(8, "Subtask 2 title upd2", "description", epic1));
-        System.out.println(manager.subtasks.getTaskList());
-        System.out.println(manager.epics.getTaskList());
-        manager.subtasks.addTask(new Subtask(7, "Subtask 1 title upd2", "description", epic1));
-        System.out.println(manager.subtasks.getTaskList());
+        System.out.println("\n=====\n");
+        manager.epics.addTask(epic1);
+        manager.epics.addTask(epic1);
+        manager.epics.addTask(epic2);
         System.out.println(manager.epics.getTaskList());
 
-        System.out.println("\n-----\n");
-
-        manager.subtasks.addTask(new Subtask("Subtask 3 title", "description", epic1));
-        System.out.println(manager.subtasks.getTaskList());
+        System.out.println("\n=====\n");
+        new Subtask(6, "subtask6 title upd 1", "desc", epic1);
         System.out.println(manager.epics.getTaskList());
+
+        System.out.println("\n=====\n");
+        manager.subtasks.addTask(new Subtask(8, "subtask8 title upd 1", "desc", epic2));
+        System.out.println(manager.epics.getTaskById(5));
+        System.out.println(manager.epics.getSubtasks(5));
+        manager.subtasks.addTask(new Subtask(8, "subtask8 title upd 1", "desc", epic2));
+        System.out.println(manager.epics.getTaskById(5));
+
+        manager.subtasks.addTask(new Subtask(7, "subtask7 title upd 1", "desc", epic2));
+        System.out.println(manager.epics.getTaskById(5));
+        manager.subtasks.addTask(new Subtask(7, "subtask7 title upd 1", "desc", epic2));
+        System.out.println(manager.epics.getTaskById(5));
+
+        System.out.println("\n=====\n");
+        manager.subtasks.deleteAllTasks();
+        System.out.println(manager.epics.getTaskList());
+
+        System.out.println("\n========\n");
+        subtask1 = new Subtask("subtask1 title", "subtitle1 description", epic1);
+        subtask2 = new Subtask("subtask2 title", "subtitle2 description", epic2);
+        subtask3 = new Subtask("subtask3 title", "subtitle3 description", epic2);
+        manager.subtasks.addTask(subtask1);
+        manager.subtasks.addTask(subtask2);
+        manager.subtasks.addTask(subtask2);
+        manager.subtasks.addTask(subtask3);
+        System.out.println(manager.epics.getTaskList());
+
+        System.out.println("\n========\n");
+        manager.epics.deleteAllTasks();
+        System.out.println(manager.epics.getTaskList());
+        System.out.println(manager.subtasks.getTaskList());
+
+        System.out.println("\n========\n");
+        Epic epic3 = new Epic("epic3 title", "desc");
+        manager.epics.addTask(epic3);
+        Subtask subtask4 = new Subtask("sub4", "desc4", epic3);
+        Subtask subtask5 = new Subtask("sub5", "desc5", epic3);
+        manager.subtasks.addTask(subtask4);
+        manager.subtasks.addTask(subtask5);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.changeTaskDescriptionById(13, "desc4 upd");
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.changeTaskStatusById(13, Status.IN_PROGRESS);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.changeTaskStatusById(14, Status.DONE);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.changeTaskStatusById(14, Status.NEW);
+        manager.subtasks.changeTaskStatusById(13, Status.DONE);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.deleteTaskById(14);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.deleteTaskById(14);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
+
+        System.out.println("\n========\n");
+        manager.subtasks.deleteTaskById(13);
+        System.out.println(manager.subtasks);
+        System.out.println(manager.epics);
     }
 }
