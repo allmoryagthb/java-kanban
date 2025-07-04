@@ -1,32 +1,33 @@
 package entities.tasks;
 
-public class Subtask extends BaseTask {
-    private final Epic epic;
+import enums.Status;
 
-    public Subtask(String title, String description, Epic epic) {
-        super(title, description);
-        this.epic = epic;
-        epic.addSubtask(this);
+public class Subtask extends Task {
+    public static final Subtask EMPTY_TASK = new Subtask("NOT FOUND", "NOT FOUND", null, null);
+    private final Integer epicId;
+
+    public Subtask(String title, String description, Status status, Integer epicId) {
+        super(title, description, status);
+        this.epicId = epicId;
     }
 
-    public Subtask(int id, String title, String description, Epic epic) {
-        super(id, title, description);
-        this.epic = epic;
-        epic.addSubtask(this);
+    public Subtask(int id, String title, String description, Status status, Integer epicId) {
+        super(id, title, description, status);
+        this.epicId = epicId;
     }
 
-    public Epic getEpic() {
-        return epic;
+    public Integer getEpicId() {
+        return epicId;
     }
 
     @Override
     public String toString() {
         return "Subtask{" +
-                "id=" + taskId +
+                "id=" + id +
                 ", title=" + title +
                 ", description=" + description +
                 ", status=" + status +
-                ", epic_id=" + epic.getTaskId() +
+                ", epic_id=" + epicId +
                 '}';
     }
 }

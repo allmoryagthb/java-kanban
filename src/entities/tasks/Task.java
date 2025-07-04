@@ -1,19 +1,61 @@
 package entities.tasks;
 
-public class Task extends BaseTask {
+import enums.Status;
 
-    public Task(String title, String description) {
-        super(title, description);
+public class Task {
+    public static final Task EMPTY_TASK = new Task("NOT FOUND", "NOT FOUND", null);
+    protected Integer id;
+    protected String title;
+    protected String description;
+    protected Status status;
+
+    public Task(String title, String description, Status status) {
+        this.title = title;
+        this.description = description;
+        this.status = status;
     }
 
-    public Task(int id, String title, String description) {
-        super(id, title, description);
+    public Task(Integer id, String title, String description, Status status) {
+        this(title, description, status);
+        this.id = id;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "Task{" +
-                "taskNum=" + taskId +
+                "id=" + id +
                 ", title=" + title +
                 ", description='" + description + '\'' +
                 ", status=" + status +
