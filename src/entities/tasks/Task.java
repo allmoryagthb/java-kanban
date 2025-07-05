@@ -2,8 +2,10 @@ package entities.tasks;
 
 import enums.Status;
 
+import java.util.Objects;
+
 public class Task {
-    public static final Task EMPTY_TASK = new Task("NOT FOUND", "NOT FOUND", null);
+    public static final Task NOT_FOUND_TASK = new Task("NOT FOUND", "NOT FOUND", null);
     protected Integer id;
     protected String title;
     protected String description;
@@ -53,10 +55,25 @@ public class Task {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                status == task.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, status);
+    }
+
+    @Override
     public String toString() {
         return "Task{" +
                 "id=" + id +
-                ", title=" + title +
+                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
