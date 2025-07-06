@@ -5,7 +5,6 @@ import enums.Status;
 import java.util.Objects;
 
 public class Subtask extends Task {
-    public static final Subtask NOT_FOUND_SUBTASK = new Subtask("NOT FOUND", "NOT FOUND", null, null);
     private final Integer epicId;
 
     public Subtask(String title, String description, Status status, Integer epicId) {

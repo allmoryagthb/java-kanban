@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Epic extends Task {
-    public static final Epic NOT_FOUND_EPIC = new Epic("NOT FOUND", "NOT FOUND");
     private Set<Integer> subtasksIds = new HashSet<>();
 
     public Epic(String title, String description) {

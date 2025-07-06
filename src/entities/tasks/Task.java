@@ -5,7 +5,6 @@ import enums.Status;
 import java.util.Objects;
 
 public class Task {
-    public static final Task NOT_FOUND_TASK = new Task("NOT FOUND", "NOT FOUND", null);
     protected Integer id;
     protected String title;
     protected String description;
