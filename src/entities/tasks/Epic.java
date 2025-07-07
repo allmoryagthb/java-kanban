@@ -3,6 +3,7 @@ package entities.tasks;
 import enums.Status;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,12 +18,20 @@ public class Epic extends Task {
         super(id, title, description, Status.NEW);
     }
 
-    public void addSubtask(Integer id) {
+    public void addSubtask(int id) {
         subtasksIds.add(id);
     }
 
     public Set<Integer> getSubtasksIds() {
-        return subtasksIds;
+        return new HashSet<>(subtasksIds);
+    }
+
+    public boolean deleteSubtaskIdById(int id) {
+        return subtasksIds.remove(id);
+    }
+
+    public void deleteAllSubtasksIds() {
+        subtasksIds.clear();
     }
 
     @Override
