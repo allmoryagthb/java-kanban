@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface HistoryManager {
 
-    boolean addTask(Task task);
+    void addTask(Task task);
 
     List<Task> getHistory();
 }

@@ -21,6 +21,10 @@ public class Task {
         this.id = id;
     }
 
+    public Task(Task task) {
+        this(task.id, task.title, task.description, task.status);
+    }
+
     public Integer getId() {
         return id;
     }
