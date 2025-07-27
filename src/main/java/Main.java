@@ -22,12 +22,12 @@ public class Main {
         inMemoryTaskManager.addNewTask(new Task(5, "task5 id title", "task5 description", NEW));
         inMemoryTaskManager.addNewTask(new Task("task6 title", "task6 description", NEW));
         inMemoryTaskManager.addNewTask(new Task(1, "some task id title", "task description", NEW));
-        System.out.println(inMemoryTaskManager.getTaskById(123));
+        System.out.println(inMemoryTaskManager.getTask(123));
         System.out.println(inMemoryTaskManager.updateTask(new Task("", "", NEW)));
         inMemoryTaskManager.updateTask(new Task(4, "task4 upd", "task4 upd description", DONE));
         inMemoryTaskManager.updateTask(new Task("task123 upd", "task123 upd description", DONE));
 
-        System.out.println(inMemoryTaskManager.getTaskById(2));
+        System.out.println(inMemoryTaskManager.getTask(2));
 
         System.out.println(inMemoryTaskManager.getAllTasks());
 
@@ -71,12 +71,12 @@ public class Main {
         inMemoryTaskManager.updateSubtask(new Subtask(123, "sub2 upd", "sub2 upd", DONE, 5));
 
         System.out.println(inMemoryTaskManager.getAllSubtasks());
-        System.out.println(inMemoryTaskManager.getSubtaskById(123));
-        System.out.println(inMemoryTaskManager.getSubtaskById(7));
+        System.out.println(inMemoryTaskManager.getSubtask(123));
+        System.out.println(inMemoryTaskManager.getSubtask(7));
         System.out.println(inMemoryTaskManager.deleteSubtaskById(9));
 
-        System.out.println(inMemoryTaskManager.getEpicById(123));
-        System.out.println(inMemoryTaskManager.getEpicById(5));
+        System.out.println(inMemoryTaskManager.getEpic(123));
+        System.out.println(inMemoryTaskManager.getEpic(5));
 
         System.out.println(inMemoryTaskManager.getEpicSubtasks(5));
         inMemoryTaskManager.deleteAllSubtasks();
