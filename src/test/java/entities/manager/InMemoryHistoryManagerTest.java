@@ -41,15 +41,65 @@ class InMemoryHistoryManagerTest {
         for (int i = 1; i <= 100; i++) {
             Task task = new Task(i, "aaa", "aaa", Status.NEW);
             historyManager.addTask(task);
-            if (i < 10) {
-                Assertions.assertEquals(i, historyManager.getHistory().size());
-                Assertions.assertEquals(1, historyManager.getHistory().getFirst().getId());
-            } else {
-                Assertions.assertEquals(10, historyManager.getHistory().size());
-                Assertions.assertEquals(i - 9, historyManager.getHistory().getFirst().getId());
-            }
+            Assertions.assertEquals(i, historyManager.getHistory().size());
+            Assertions.assertEquals(1, historyManager.getHistory().getFirst().getId());
             Assertions.assertEquals(i, historyManager.getHistory().getLast().getId());
         }
+    }
+
+    @Test
+    void checkHistoryManagerResavedHeaderElement() {
+        Task task1 = new Task(1, "title", "desc", Status.NEW);
+        Task task2 = new Task(2, "title", "desc", Status.NEW);
+        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        historyManager.addTask(task1);
+        historyManager.addTask(task2);
+        historyManager.addTask(task3);
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
+        Assertions.assertEquals(task1, historyManager.getHistory().getFirst(),
+                "Задача 'Task 1' не на 1 месте!");
+        historyManager.addTask(task1);
+        Assertions.assertEquals(task2, historyManager.getHistory().getFirst(),
+                "Задача 'Task 2' не на 1 месте!");
+        Assertions.assertEquals(task1, historyManager.getHistory().getLast(),
+                "Задача 'Task 2' не на последнем месте!");
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
+    }
+
+    @Test
+    void checkHistoryManagerResavedTailElement() {
+        Task task1 = new Task(1, "title", "desc", Status.NEW);
+        Task task2 = new Task(2, "title", "desc", Status.NEW);
+        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        historyManager.addTask(task1);
+        historyManager.addTask(task2);
+        historyManager.addTask(task3);
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
+        Assertions.assertEquals(task3, historyManager.getHistory().getLast(),
+                "Задача 'Task 3' не на последнем месте!");
+        historyManager.addTask(task3);
+        Assertions.assertEquals(task3, historyManager.getHistory().getLast(),
+                "Задача 'Task 3' не на последнем месте!");
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
+    }
+
+    @Test
+    void checkHistoryManagerResavedMiddleElement() {
+        Task task1 = new Task(1, "title", "desc", Status.NEW);
+        Task task2 = new Task(2, "title", "desc", Status.NEW);
+        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        historyManager.addTask(task1);
+        historyManager.addTask(task2);
+        historyManager.addTask(task3);
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
+        Assertions.assertEquals(task3, historyManager.getHistory().getLast(),
+                "Задача 'Task 3' не на втором месте!");
+        historyManager.addTask(task2);
+        Assertions.assertEquals(task1, historyManager.getHistory().getFirst(), "Задача 'Task 1' не на первом месте");
+        Assertions.assertEquals(task3, historyManager.getHistory().get(1), "Задача 'Task 2' не на втором месте");
+        Assertions.assertEquals(task2, historyManager.getHistory().getLast(),
+                "Задача 'Task 2' не на последнем месте!");
+        Assertions.assertEquals(3, historyManager.getHistory().size(), "Размер коллекции не равен 3");
     }
 
     @Test
