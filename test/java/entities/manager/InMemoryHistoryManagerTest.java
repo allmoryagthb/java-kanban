@@ -122,15 +122,8 @@ class InMemoryHistoryManagerTest {
         historyManager.addTask(task);
 
         taskFromHistory = historyManager.getHistory().getFirst();
-        Assertions.assertEquals(2, historyManager.getHistory().size(),
-                "Количество элементов в истории не равно 2");
-        Assertions.assertEquals(task.getId(), taskFromHistory.getId(), "id не совпадают");
-        Assertions.assertNotEquals(task.getTitle(), taskFromHistory.getTitle(), "Заголовки совпадают");
-        Assertions.assertNotEquals(task.getDescription(), taskFromHistory.getDescription(),
-                "Описания совпадают");
-        Assertions.assertNotEquals(task.getStatus(), taskFromHistory.getStatus(), "Статусы совпадают");
-
-        taskFromHistory = historyManager.getHistory().getLast();
+        Assertions.assertEquals(1, historyManager.getHistory().size(),
+                "Количество элементов в истории не равно 1");
         Assertions.assertEquals(task.getId(), taskFromHistory.getId(), "id не совпадают");
         Assertions.assertEquals(task.getTitle(), taskFromHistory.getTitle(), "Заголовки не совпадают");
         Assertions.assertEquals(task.getDescription(), taskFromHistory.getDescription(),

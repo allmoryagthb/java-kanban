@@ -3,10 +3,12 @@ package entities.manager;
 import entities.Node;
 import entities.tasks.Task;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final List<Node<Task>> history = new LinkedList<>();
     private final Map<Integer, Node<Task>> taskMap = new HashMap<>();
 
     private Node<Task> headNode;
@@ -22,7 +24,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         Node<Task> nodeForDelete = taskMap.get(id);
-        removeNode(nodeForDelete);
+
+        if (nodeForDelete != null) {
+            removeNode(nodeForDelete);
+            taskMap.remove(id);
+        }
     }
 
     @Override
@@ -37,7 +43,7 @@ public class InMemoryHistoryManager implements HistoryManager {
                 taskHistory.add(node.getData());
             }
         }
-        return List.copyOf(taskHistory);
+        return taskHistory;
     }
 
     private void linkLast(Task task) {
@@ -46,21 +52,13 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (headNode == null) {
             headNode = newNode;
             tailNode = newNode;
-            headNode.setNextNode(tailNode);
-            tailNode.setPrevNode(headNode);
-            newNode.setNextNode(newNode);
-            newNode.setPrevNode(newNode);
         } else {
-            Node<Task> oldTail = tailNode;
+            final Node<Task> oldTail = tailNode;
             tailNode = newNode;
             oldTail.setNextNode(newNode);
             tailNode.setPrevNode(oldTail);
-            newNode.setPrevNode(oldTail);
-            headNode.setPrevNode(null);
-            tailNode.setNextNode(null);
         }
 
-        history.add(newNode);
         taskMap.put(task.getId(), newNode);
     }
 
@@ -78,8 +76,5 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             nextNode.setPrevNode(nodeForDelete.getPrevNode());
         }
-
-        nodeForDelete.setPrevNode(null);
-        nodeForDelete.setNextNode(null);
     }
 }
