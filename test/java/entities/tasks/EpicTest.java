@@ -1,6 +1,5 @@
 package entities.tasks;
 
-import enums.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

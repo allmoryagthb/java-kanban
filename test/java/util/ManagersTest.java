@@ -2,10 +2,9 @@ package util;
 
 import entities.manager.InMemoryHistoryManager;
 import entities.manager.InMemoryTaskManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class ManagersTest {
 

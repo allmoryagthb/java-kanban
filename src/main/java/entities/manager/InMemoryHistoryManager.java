@@ -1,23 +1,80 @@
 package entities.manager;
 
+import entities.Node;
 import entities.tasks.Task;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private List<Task> history = new LinkedList<>();
-    private static final int MAX_SIZE = 10;
+    private final Map<Integer, Node<Task>> taskMap = new HashMap<>();
+
+    private Node<Task> headNode;
+    private Node<Task> tailNode;
 
     @Override
     public void addTask(Task task) {
-        history.add(new Task(task));
-        if (history.size() > MAX_SIZE)
-            history.removeFirst();
+        if (taskMap.containsKey(task.getId()))
+            remove(task.getId());
+        linkLast(new Task(task));
+    }
+
+    @Override
+    public void remove(int id) {
+        Node<Task> nodeForDelete = taskMap.get(id);
+
+        if (nodeForDelete != null) {
+            removeNode(nodeForDelete);
+            taskMap.remove(id);
+        }
     }
 
     @Override
     public List<Task> getHistory() {
-        return List.copyOf(history);
+        List<Task> taskHistory = new ArrayList<>();
+
+        if (headNode != null) {
+            taskHistory.add(headNode.getData());
+            Node<Task> node = headNode;
+            while (node.getNextNode() != null && node != node.getNextNode()) {
+                node = node.getNextNode();
+                taskHistory.add(node.getData());
+            }
+        }
+        return taskHistory;
+    }
+
+    private void linkLast(Task task) {
+        Node<Task> newNode = new Node<>(task);
+
+        if (headNode == null) {
+            headNode = newNode;
+            tailNode = newNode;
+        } else {
+            final Node<Task> oldTail = tailNode;
+            tailNode = newNode;
+            oldTail.setNextNode(newNode);
+            tailNode.setPrevNode(oldTail);
+        }
+
+        taskMap.put(task.getId(), newNode);
+    }
+
+    private void removeNode(Node<Task> nodeForDelete) {
+        Node<Task> prevNode = nodeForDelete.getPrevNode();
+        if (prevNode == null) {
+            headNode = nodeForDelete.getNextNode();
+        } else {
+            prevNode.setNextNode(nodeForDelete.getNextNode());
+        }
+
+        Node<Task> nextNode = nodeForDelete.getNextNode();
+        if (nextNode == null) {
+            tailNode = nodeForDelete.getPrevNode();
+        } else {
+            nextNode.setPrevNode(nodeForDelete.getPrevNode());
+        }
     }
 }
