@@ -150,46 +150,47 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     fileBackedTaskManager.epics.put(epic.getId(), epic);
                 } else {
                     final Subtask subtask = CSVTaskFormat.getSubtaskFromString(line);
-                    fileBackedTaskManager.getEpic(subtask.getEpicId()).addSubtask(subtask.getId());
+                    fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                 }
                 counter++;
             }
 
-            historyIds.forEach(elementId -> List.of(fileBackedTaskManager.tasks,
+            historyIds.forEach(elementId -> List.of(
+                    fileBackedTaskManager.tasks,
                     fileBackedTaskManager.epics,
                     fileBackedTaskManager.subtasks).forEach(collection -> {
-                        if (collection.containsKey(elementId))
-                            fileBackedTaskManager.historyManager.addTask(collection.get(elementId));
+                if (collection.containsKey(elementId)) {
+                    fileBackedTaskManager.historyManager.addTask(collection.get(elementId));
+                }
             }));
 
         } catch (IOException e) {
-            throw new ManagerSaveException("Can't read from file" + file.getName(), e);
+            throw new ManagerSaveException("Can't read from file: " + file.getName(), e);
         }
 
         return fileBackedTaskManager;
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter writer = new BufferedWriter(
                 new FileWriter(file, StandardCharsets.UTF_8))) {
             writer.write(CSVTaskFormat.getHeader());
             writer.newLine();
 
-            List.of(tasks, epics, subtasks).forEach(collection -> {
-                collection.forEach((key, value) -> {
-                    try {
-                        writer.write(CSVTaskFormat.toString(value));
-                        writer.newLine();
-                    } catch (IOException e) {
-                        throw new ManagerSaveException("Can't save to file" + file.getName(), e);
-                    }
-                });
-            });
+            List.of(tasks, epics, subtasks).forEach(collection ->
+                    collection.forEach((key, value) -> {
+                        try {
+                            writer.write(CSVTaskFormat.toString(value));
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
+                        }
+                    }));
             writer.newLine();
             writer.write(CSVTaskFormat.toString(historyManager));
         } catch (IOException e) {
-            throw new ManagerSaveException("Can't save to file" + file.getName(), e);
+            throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
         }
     }
 }
