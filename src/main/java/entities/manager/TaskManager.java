@@ -7,7 +7,7 @@ import entities.tasks.Task;
 import java.util.List;
 
 public interface TaskManager {
-    int addNewTask(Task task);
+    int addTask(Task task);
 
     boolean updateTask(Task task);
 
@@ -19,7 +19,7 @@ public interface TaskManager {
 
     void deleteAllTasks();
 
-    int addNewEpic(Epic epic);
+    int addEpic(Epic epic);
 
     boolean updateEpic(Epic epic);
 
@@ -33,7 +33,7 @@ public interface TaskManager {
 
     void deleteAllEpics();
 
-    int addNewSubtask(Subtask subtask);
+    int addSubtask(Subtask subtask);
 
     boolean updateSubtask(Subtask subtask);
 

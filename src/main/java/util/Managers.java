@@ -1,14 +1,18 @@
 package util;
 
+import entities.manager.FileBackedTaskManager;
 import entities.manager.HistoryManager;
 import entities.manager.InMemoryHistoryManager;
-import entities.manager.InMemoryTaskManager;
-import entities.manager.TaskManager;
+
+import java.io.File;
 
 public class Managers {
 
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+    public static FileBackedTaskManager getDefault() {
+        File file = new File("vault.csv");
+        if (file.exists())
+            file.delete();
+        return new FileBackedTaskManager(new File("vault.csv"));
     }
 
     public static HistoryManager getDefaultHistory() {
