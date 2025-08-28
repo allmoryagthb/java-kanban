@@ -5,7 +5,6 @@ import entities.tasks.Epic;
 import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,15 +21,9 @@ public class FileBackedTaskManagerTest {
     private static final Logger logger = Logger.getLogger(String.valueOf(FileBackedTaskManager.class));
 
     @BeforeEach
-    public void before() {
-        this.file = new File("test.csv");
+    public void before() throws IOException {
+        this.file = File.createTempFile("temp", "csv");
         this.fileBackedTaskManager = new FileBackedTaskManager(file);
-    }
-
-    @AfterEach
-    public void after() {
-        if (file.exists())
-            logger.info("Удаление файла %s после теста: %b".formatted(file.getName(), file.delete()));
     }
 
     @Test
