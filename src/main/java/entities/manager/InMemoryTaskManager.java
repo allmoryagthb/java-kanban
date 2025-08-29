@@ -128,7 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
                         historyManager.remove(subtaskId);
                     });
         }
-        historyManager.remove(id);;
+        historyManager.remove(id);
         return epics.remove(id) != null;
     }
 
@@ -207,6 +207,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    public int getIdCounter() {
+        return this.idCounter;
+    }
+
+    protected void setIdCounter(int idCounter) {
+        this.idCounter = idCounter;
     }
 
     private void updateEpicStatus(int id) {

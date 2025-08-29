@@ -40,18 +40,14 @@ public class CSVTaskFormat {
 
     public static String toString(Map<Integer, Task> collection) {
         StringBuilder result = new StringBuilder();
-        collection.forEach((k, v) -> {
-            result.append(toString(v)).append("\n");
-        });
+        collection.forEach((k, v) -> result.append(toString(v)).append("\n"));
         return result.toString();
     }
 
     public static String toString(HistoryManager historyManager) {
         if (historyManager.getHistory().isEmpty()) return "";
         StringBuilder result = new StringBuilder();
-        historyManager.getHistory().forEach(element -> {
-            result.append(",").append(element.getId());
-        });
+        historyManager.getHistory().forEach(element -> result.append(",").append(element.getId()));
         if (result.charAt(0) == ',') result.deleteCharAt(0);
         return result.toString();
     }
@@ -68,7 +64,9 @@ public class CSVTaskFormat {
 
     public static Epic getEpicFromString(String line) {
         String[] splitLine = line.split(",");
-        return new Epic(Integer.parseInt(splitLine[0]), splitLine[2], splitLine[3]);
+        final Epic epic = new Epic(Integer.parseInt(splitLine[0]), splitLine[2], splitLine[4]);
+        epic.setStatus(getStatusFromString(splitLine[3]));
+        return epic;
     }
 
     public static Subtask getSubtaskFromString(String line) {

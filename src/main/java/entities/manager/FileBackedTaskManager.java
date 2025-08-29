@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -127,6 +128,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         final FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
+        final List<Map<Integer, ? extends Task>> listOfAllEntities = List.of(
+                fileBackedTaskManager.tasks,
+                fileBackedTaskManager.epics,
+                fileBackedTaskManager.subtasks);
+
         try {
             final String csv = Files.readString(file.toPath());
             final String[] lines = csv.split(System.lineSeparator());
@@ -154,12 +160,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                 }
                 counter++;
+
+                if (fileBackedTaskManager.getIdCounter() < counter)
+                    fileBackedTaskManager.setIdCounter(counter);
             }
 
-            historyIds.forEach(elementId -> List.of(
-                    fileBackedTaskManager.tasks,
-                    fileBackedTaskManager.epics,
-                    fileBackedTaskManager.subtasks).forEach(collection -> {
+            historyIds.forEach(elementId -> listOfAllEntities.forEach(collection -> {
                 if (collection.containsKey(elementId)) {
                     fileBackedTaskManager.historyManager.addTask(collection.get(elementId));
                 }

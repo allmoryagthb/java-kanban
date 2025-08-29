@@ -8,6 +8,8 @@ import enums.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import util.CSVTaskFormat;
 
 import java.io.File;
@@ -55,13 +57,14 @@ public class FileBackedTaskManagerTest {
         Assertions.assertTrue(file.exists());
     }
 
-    @Test
-    public void checkLoadingFromFile() {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void checkLoadingFromFile(boolean checkFurtherWork) {
         fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW));
         fileBackedTaskManager.addTask(new Task("task title2", "task desc", Status.NEW));
         fileBackedTaskManager.addEpic(new Epic("epic title", "epic desc"));
-        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.NEW, 3));
-        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.NEW));
+        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.DONE, 3));
+        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.IN_PROGRESS));
         fileBackedTaskManager.getTask(2);
         fileBackedTaskManager.getTask(1);
         fileBackedTaskManager.getTask(5);
@@ -71,9 +74,24 @@ public class FileBackedTaskManagerTest {
                 "Коллекции задач не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getAllEpics(), fileBackedTaskManagerLoaded.getAllEpics(),
                 "Коллекции эпиков не совпадают");
+        Assertions.assertEquals(fileBackedTaskManager.getAllEpics().stream().map(Epic::getSubtasksIds).toList(),
+        fileBackedTaskManagerLoaded.getAllEpics().stream().map(Epic::getSubtasksIds).toList(),
+                "Списки id подзадач эпиков у оригинального и восстановленного списков не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getAllSubtasks(), fileBackedTaskManagerLoaded.getAllSubtasks(),
                 "Коллекции подзадач не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getHistory(), fileBackedTaskManagerLoaded.getHistory(),
                 "Коллекции истории не совпадают");
+
+        if (checkFurtherWork) {
+            fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW));
+            Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllTasks().containsAll(fileBackedTaskManager.getAllTasks()),
+                    "В новой коллекции отсутствует задача, присутствующая в старой коллекции");
+            fileBackedTaskManagerLoaded.addEpic(new Epic("epic title", "epic desc"));
+            Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllEpics().containsAll(fileBackedTaskManager.getAllEpics()),
+                    "В новой коллекции отсутствует эпик, присутствующий в старой коллекции");
+            fileBackedTaskManagerLoaded.addSubtask(new Subtask("subt title", "subt desc", Status.IN_PROGRESS, 3));
+            Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllSubtasks().containsAll(fileBackedTaskManager.getAllSubtasks()),
+                    "В новой коллекции отсутствует подзадача, присутствующая в старой коллекции");
+        }
     }
 }
