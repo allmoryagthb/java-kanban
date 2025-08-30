@@ -20,16 +20,16 @@ class InMemoryTaskManagerTest {
 
     @Test
     void checkManagerSavingEntities() {
-        taskManager.addNewTask(new Task("task_title_1", "task_desc_1", Status.NEW));
-        taskManager.addNewTask(new Task("task_title_2", "task_desc_2", Status.NEW));
-        taskManager.addNewTask(new Task("task_title_3", "task_desc_3", Status.NEW));
+        taskManager.addTask(new Task("task_title_1", "task_desc_1", Status.NEW));
+        taskManager.addTask(new Task("task_title_2", "task_desc_2", Status.NEW));
+        taskManager.addTask(new Task("task_title_3", "task_desc_3", Status.NEW));
 
         Assertions.assertEquals(3, taskManager.getAllTasks().size(), "Число задач не равно 3");
         Task task = taskManager.getAllTasks().get(1);
         Assertions.assertEquals(task, taskManager.getAllTasks().get(1), "Задачи не равны");
 
-        taskManager.addNewEpic(new Epic("epic1", "epic1_desc"));
-        taskManager.addNewEpic(new Epic("epic2", "epic2_desc"));
+        taskManager.addEpic(new Epic("epic1", "epic1_desc"));
+        taskManager.addEpic(new Epic("epic2", "epic2_desc"));
 
         Assertions.assertEquals(2, taskManager.getAllEpics().size(), "Число эпиков не равно 2");
         Epic epic = taskManager.getAllEpics().getFirst();
@@ -38,8 +38,8 @@ class InMemoryTaskManagerTest {
         Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 4);
         Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 4);
 
-        taskManager.addNewSubtask(subtask1);
-        taskManager.addNewSubtask(subtask2);
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
 
         Assertions.assertEquals(2, taskManager.getAllSubtasks().size(), "Число подзадач не равно 2");
         Subtask subtask = taskManager.getAllSubtasks().getFirst();
@@ -49,43 +49,43 @@ class InMemoryTaskManagerTest {
     @Test
     void checkManagerDontSaveEntitiesWithId() {
         Task task = new Task(1, "task_title_1", "task_desc_1", Status.NEW);
-        Assertions.assertEquals(-1, taskManager.addNewTask(task),
+        Assertions.assertEquals(-1, taskManager.addTask(task),
                 "Задача с id в параметрах была добавлена в менеджер");
 
         Epic epic = new Epic(1, "title", "desc");
-        Assertions.assertEquals(-1, taskManager.addNewEpic(epic),
+        Assertions.assertEquals(-1, taskManager.addEpic(epic),
                 "Эпик с id в параметрах был добавлен в менеджер");
 
         Subtask subtask = new Subtask(1, "title", "desc", Status.NEW, 1);
-        taskManager.addNewEpic(new Epic("", ""));
-        Assertions.assertEquals(-1, taskManager.addNewSubtask(subtask),
+        taskManager.addEpic(new Epic("", ""));
+        Assertions.assertEquals(-1, taskManager.addSubtask(subtask),
                 "Подзадача с id в параметрах была добавлена в менеджер");
     }
 
     @Test
     void checkAddingNullsInManager() {
-        Assertions.assertEquals(-1, taskManager.addNewTask(null),
+        Assertions.assertEquals(-1, taskManager.addTask(null),
                 "null задача была добавлена в менеджер");
-        Assertions.assertEquals(-1, taskManager.addNewEpic(null),
+        Assertions.assertEquals(-1, taskManager.addEpic(null),
                 "null эпик был добавлен в менеджер");
-        Assertions.assertEquals(-1, taskManager.addNewSubtask(null),
+        Assertions.assertEquals(-1, taskManager.addSubtask(null),
                 "null подзадача была добавлена в менеджер");
     }
 
     @Test
     void checkThatSubtaskCantBeAddedAsEpic() {
         Epic epic = new Epic("", "");
-        int epicIndex = taskManager.addNewEpic(epic);
+        int epicIndex = taskManager.addEpic(epic);
 
         Assertions.assertEquals(-1,
-                taskManager.addNewSubtask(new Subtask(epicIndex, "", "", Status.NEW, epicIndex)),
+                taskManager.addSubtask(new Subtask(epicIndex, "", "", Status.NEW, epicIndex)),
                 "id эпика был добавлен в коллекцию подзадач");
     }
 
     @Test
     void checkManagerSavingEntity() {
         Task task = new Task("title_1", "description_1", Status.NEW);
-        taskManager.addNewTask(task);
+        taskManager.addTask(task);
         Task taskFromManager = taskManager.getAllTasks().getFirst();
 
         Assertions.assertEquals(task.getId(), taskFromManager.getId(), "id не равны");
@@ -96,7 +96,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void updateTaskTest() {
-        taskManager.addNewTask(new Task("title", "description", Status.NEW));
+        taskManager.addTask(new Task("title", "description", Status.NEW));
         Task taskUpd = new Task(1, "title_upd", "desc_upd", Status.IN_PROGRESS);
         Assertions.assertTrue(taskManager.updateTask(taskUpd), "Не удалось обновить задачу");
 
@@ -112,9 +112,9 @@ class InMemoryTaskManagerTest {
         Task task1 = new Task("t1", "t1", Status.NEW);
         Task task2 = new Task("t2", "t2", Status.IN_PROGRESS);
         Task task3 = new Task("t3", "t3", Status.DONE);
-        int index1 = taskManager.addNewTask(task1);
-        int index2 =  taskManager.addNewTask(task2);
-        int index3 =  taskManager.addNewTask(task3);
+        int index1 = taskManager.addTask(task1);
+        int index2 =  taskManager.addTask(task2);
+        int index3 =  taskManager.addTask(task3);
 
         taskManager.deleteTaskById(index2);
         Assertions.assertEquals(2, taskManager.getAllTasks().size(), "Размер коллекции не равен 2");
