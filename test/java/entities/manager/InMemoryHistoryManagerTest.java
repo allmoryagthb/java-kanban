@@ -9,6 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import util.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 class InMemoryHistoryManagerTest {
     private HistoryManager historyManager;
 
@@ -19,9 +22,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkHistoryManagerSavingEntity() {
-        Task task1 = new Task(1, "Aaa", "Aaa", Status.NEW);
+        Task task1 = new Task(1, "Aaa", "Aaa", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         Epic epic1 = new Epic(2, "Bbb", "Bbb");
-        Subtask subtask1 = new Subtask(3, "Ccc", "Ccc", Status.NEW, 1);
+        Subtask subtask1 = new Subtask(3, "Ccc", "Ccc", Status.NEW, 1, LocalDateTime.now(), Duration.ofMinutes(10));
 
         historyManager.addTask(task1);
         Assertions.assertEquals(1, historyManager.getHistory().size());
@@ -39,7 +42,7 @@ class InMemoryHistoryManagerTest {
     @Test
     void checkHistoryManagerSave10EntitiesMax() {
         for (int i = 1; i <= 100; i++) {
-            Task task = new Task(i, "aaa", "aaa", Status.NEW);
+            Task task = new Task(i, "aaa", "aaa", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
             historyManager.addTask(task);
             Assertions.assertEquals(i, historyManager.getHistory().size());
             Assertions.assertEquals(1, historyManager.getHistory().getFirst().getId());
@@ -49,9 +52,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkHistoryManagerResavedHeaderElement() {
-        Task task1 = new Task(1, "title", "desc", Status.NEW);
-        Task task2 = new Task(2, "title", "desc", Status.NEW);
-        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        Task task1 = new Task(1, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task2 = new Task(2, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task3 = new Task(3, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         historyManager.addTask(task1);
         historyManager.addTask(task2);
         historyManager.addTask(task3);
@@ -68,9 +71,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkHistoryManagerResavedTailElement() {
-        Task task1 = new Task(1, "title", "desc", Status.NEW);
-        Task task2 = new Task(2, "title", "desc", Status.NEW);
-        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        Task task1 = new Task(1, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task2 = new Task(2, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task3 = new Task(3, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         historyManager.addTask(task1);
         historyManager.addTask(task2);
         historyManager.addTask(task3);
@@ -85,9 +88,9 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkHistoryManagerResavedMiddleElement() {
-        Task task1 = new Task(1, "title", "desc", Status.NEW);
-        Task task2 = new Task(2, "title", "desc", Status.NEW);
-        Task task3 = new Task(3, "title", "desc", Status.NEW);
+        Task task1 = new Task(1, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task2 = new Task(2, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task3 = new Task(3, "title", "desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         historyManager.addTask(task1);
         historyManager.addTask(task2);
         historyManager.addTask(task3);
@@ -104,7 +107,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void checkHistoryManagerEntitiesConditions() {
-        Task task = new Task(1, "title1", "description1", Status.NEW);
+        Task task = new Task(1, "title1", "description1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         historyManager.addTask(task);
 
         Task taskFromHistory = historyManager.getHistory().getFirst();

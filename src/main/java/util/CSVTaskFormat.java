@@ -6,6 +6,10 @@ import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,20 +25,24 @@ public class CSVTaskFormat {
 
     public static String toString(Task task) {
         if (task instanceof Subtask) {
-            return String.format("%d,%s,%s,%s,%s,%d".formatted(
+            return String.format("%d,%s,%s,%s,%s,%d,%d,%d".formatted(
                     task.getId(),
                     task.getClass().getSimpleName(),
                     task.getTitle(),
                     task.getStatus(),
                     task.getDescription(),
-                    ((Subtask) task).getEpicId()));
+                    ((Subtask) task).getEpicId(),
+                    task.getStartTime().toEpochSecond(ZoneOffset.UTC),
+                    task.getDuration().toSeconds()));
         }
-        return String.format("%d,%s,%s,%s,%s".formatted(
+        return String.format("%d,%s,%s,%s,%s,%d,%d".formatted(
                 task.getId(),
                 task.getClass().getSimpleName(),
                 task.getTitle(),
                 task.getStatus(),
-                task.getDescription()));
+                task.getDescription(),
+                task.getStartTime().toEpochSecond(ZoneOffset.UTC),
+                task.getDuration().toSeconds()));
 
     }
 
@@ -59,20 +67,37 @@ public class CSVTaskFormat {
 
     public static Task getTaskFromString(String line) {
         String[] splitLine = line.split(",");
-        return new Task(Integer.valueOf(splitLine[0]), splitLine[2], splitLine[4], getStatusFromString(splitLine[3]));
+        return new Task(
+                Integer.valueOf(splitLine[0]),
+                splitLine[2],
+                splitLine[4],
+                getStatusFromString(splitLine[3]),
+                getLocalDateTimeFromString(splitLine[5]),
+                getDurationFromString(splitLine[6]));
     }
+
+
 
     public static Epic getEpicFromString(String line) {
         String[] splitLine = line.split(",");
-        final Epic epic = new Epic(Integer.parseInt(splitLine[0]), splitLine[2], splitLine[4]);
+        final Epic epic = new Epic(
+                Integer.parseInt(splitLine[0]),
+                splitLine[2],
+                splitLine[4]);
         epic.setStatus(getStatusFromString(splitLine[3]));
         return epic;
     }
 
     public static Subtask getSubtaskFromString(String line) {
         String[] splitLine = line.split(",");
-        return new Subtask(Integer.parseInt(splitLine[0]), splitLine[2],
-                splitLine[4], getStatusFromString(splitLine[3]), Integer.parseInt(splitLine[5]));
+        return new Subtask(Integer.parseInt(
+                splitLine[0]),
+                splitLine[2],
+                splitLine[4],
+                getStatusFromString(splitLine[3]),
+                Integer.parseInt(splitLine[5]),
+                getLocalDateTimeFromString(splitLine[6]),
+                getDurationFromString(splitLine[7]));
     }
 
 
@@ -83,6 +108,15 @@ public class CSVTaskFormat {
             return Status.IN_PROGRESS;
         else
             return Status.DONE;
+    }
+
+    private static LocalDateTime getLocalDateTimeFromString(String timestamp) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return LocalDateTime.parse(timestamp, formatter);
+    }
+
+    private static Duration getDurationFromString(String timestamp) {
+        return Duration.ofSeconds(Long.parseLong(timestamp));
     }
 
 

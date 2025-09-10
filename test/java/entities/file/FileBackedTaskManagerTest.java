@@ -15,6 +15,8 @@ import util.CSVTaskFormat;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.logging.Logger;
 
 public class FileBackedTaskManagerTest {
@@ -30,7 +32,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     public void checkThatFileCreatedByAddingTask() throws IOException {
-        Task task = new Task("task title1", "task desc", Status.NEW);
+        Task task = new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         fileBackedTaskManager.addTask(task);
         final String csv = Files.readString(file.toPath());
         String[] lines = csv.split(System.lineSeparator());
@@ -45,7 +47,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     public void checkThatHistoryAddedToFile() throws IOException {
-        Task task = new Task("task title1", "task desc", Status.NEW);
+        Task task = new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
         fileBackedTaskManager.addTask(task);
         fileBackedTaskManager.getTask(1);
         final String csv = Files.readString(file.toPath());
@@ -60,11 +62,11 @@ public class FileBackedTaskManagerTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void checkLoadingFromFile(boolean checkFurtherWork) {
-        fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW));
-        fileBackedTaskManager.addTask(new Task("task title2", "task desc", Status.NEW));
+        fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
+        fileBackedTaskManager.addTask(new Task("task title2", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
         fileBackedTaskManager.addEpic(new Epic("epic title", "epic desc"));
-        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.DONE, 3));
-        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.IN_PROGRESS));
+        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.DONE, 3, LocalDateTime.now(), Duration.ofMinutes(10)));
+        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.IN_PROGRESS, LocalDateTime.now(), Duration.ofMinutes(10)));
         fileBackedTaskManager.getTask(2);
         fileBackedTaskManager.getTask(1);
         fileBackedTaskManager.getTask(5);
@@ -75,7 +77,7 @@ public class FileBackedTaskManagerTest {
         Assertions.assertEquals(fileBackedTaskManager.getAllEpics(), fileBackedTaskManagerLoaded.getAllEpics(),
                 "Коллекции эпиков не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getAllEpics().stream().map(Epic::getSubtasksIds).toList(),
-        fileBackedTaskManagerLoaded.getAllEpics().stream().map(Epic::getSubtasksIds).toList(),
+                fileBackedTaskManagerLoaded.getAllEpics().stream().map(Epic::getSubtasksIds).toList(),
                 "Списки id подзадач эпиков у оригинального и восстановленного списков не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getAllSubtasks(), fileBackedTaskManagerLoaded.getAllSubtasks(),
                 "Коллекции подзадач не совпадают");
@@ -83,13 +85,13 @@ public class FileBackedTaskManagerTest {
                 "Коллекции истории не совпадают");
 
         if (checkFurtherWork) {
-            fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW));
+            fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllTasks().containsAll(fileBackedTaskManager.getAllTasks()),
                     "В новой коллекции отсутствует задача, присутствующая в старой коллекции");
             fileBackedTaskManagerLoaded.addEpic(new Epic("epic title", "epic desc"));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllEpics().containsAll(fileBackedTaskManager.getAllEpics()),
                     "В новой коллекции отсутствует эпик, присутствующий в старой коллекции");
-            fileBackedTaskManagerLoaded.addSubtask(new Subtask("subt title", "subt desc", Status.IN_PROGRESS, 3));
+            fileBackedTaskManagerLoaded.addSubtask(new Subtask("subt title", "subt desc", Status.IN_PROGRESS, 3, LocalDateTime.now(), Duration.ofMinutes(10)));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllSubtasks().containsAll(fileBackedTaskManager.getAllSubtasks()),
                     "В новой коллекции отсутствует подзадача, присутствующая в старой коллекции");
         }

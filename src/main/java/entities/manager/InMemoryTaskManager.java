@@ -3,8 +3,10 @@ package entities.manager;
 import entities.tasks.Epic;
 import entities.tasks.Subtask;
 import entities.tasks.Task;
+import exceptions.TaskValidationException;
 import util.Managers;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static enums.Status.*;
@@ -13,6 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Task> tasks;
     protected final Map<Integer, Epic> epics;
     protected final Map<Integer, Subtask> subtasks;
+    protected final Set<Task> prioritizedTasks;
     protected final HistoryManager historyManager;
 
     private int idCounter;
@@ -21,6 +24,7 @@ public class InMemoryTaskManager implements TaskManager {
         this.tasks = new TreeMap<>();
         this.epics = new TreeMap<>();
         this.subtasks = new TreeMap<>();
+        prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
         this.historyManager = Managers.getDefaultHistory();
     }
 
@@ -33,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         task.setId(++idCounter);
         tasks.put(idCounter, task);
-
+        add(task);
         return idCounter;
     }
 
@@ -152,6 +156,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(idCounter, subtask);
         epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
         updateEpicStatus(subtask.getEpicId());
+        add(subtask);
         return idCounter;
     }
 
@@ -232,5 +237,45 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epic.setStatus(IN_PROGRESS);
+
+        if (epic.getSubtasksIds().isEmpty())
+            return;
+
+        epic.getSubtasksIds().forEach(subtaskId -> {
+            Subtask subtask = subtasks.get(subtaskId);
+            if (epic.getStartTime().isAfter(subtask.getStartTime()))
+                epic.setStartTime(subtask.getStartTime());
+            if (epic.getEndTime().isBefore(subtask.getEndTime()))
+                epic.setEndTime(subtask.getEndTime());
+        });
+    }
+
+    private static boolean isOverlapped(Task taskForAddition, Task task) {
+        return taskForAddition.getStartTime().isAfter(task.getEndTime()) ||
+                taskForAddition.getEndTime().isBefore(task.getStartTime());
+    }
+
+    private void add(Task taskToAdd) {
+        String pattern = "HH:mm";
+        prioritizedTasks.stream()
+                .filter(taskInSet -> isOverlapped(taskToAdd, taskInSet))
+                .findFirst()
+                .ifPresentOrElse(
+                        overlappedTask -> {
+                            String message = "Новая задача с id '%s'\n".formatted(taskToAdd.getId()) +
+                                    "startTime : '%s'\n"
+                                            .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                    "endTime : '%s'\n"
+                                            .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                    "пересекается с существующей задачей с id '%d'\n"
+                                            .formatted(overlappedTask.getId()) +
+                                    "startTime : '%s'\n"
+                                            .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                    "endTime : '%s'\n"
+                                            .formatted(overlappedTask.getEndTime().format(DateTimeFormatter.ofPattern(pattern)));
+
+                            throw new TaskValidationException(message);
+                        },
+                        () -> prioritizedTasks.add(taskToAdd));
     }
 }
