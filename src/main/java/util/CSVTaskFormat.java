@@ -7,9 +7,9 @@ import entities.tasks.Task;
 import enums.Status;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +32,8 @@ public class CSVTaskFormat {
                     task.getStatus(),
                     task.getDescription(),
                     ((Subtask) task).getEpicId(),
-                    task.getStartTime().toEpochSecond(ZoneOffset.UTC),
-                    task.getDuration().toSeconds()));
+                    task.getStartTime().atZone(ZoneId.of("Europe/Moscow")).toEpochSecond(),
+                    task.getDuration().toMillis()));
         }
         return String.format("%d,%s,%s,%s,%s,%d,%d".formatted(
                 task.getId(),
@@ -41,9 +41,8 @@ public class CSVTaskFormat {
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
-                task.getStartTime().toEpochSecond(ZoneOffset.UTC),
-                task.getDuration().toSeconds()));
-
+                task.getStartTime().atZone(ZoneId.of("Europe/Moscow")).toEpochSecond(),
+                task.getDuration().toMillis()));
     }
 
     public static String toString(Map<Integer, Task> collection) {
@@ -75,7 +74,6 @@ public class CSVTaskFormat {
                 getLocalDateTimeFromString(splitLine[5]),
                 getDurationFromString(splitLine[6]));
     }
-
 
 
     public static Epic getEpicFromString(String line) {
@@ -111,12 +109,14 @@ public class CSVTaskFormat {
     }
 
     private static LocalDateTime getLocalDateTimeFromString(String timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return LocalDateTime.parse(timestamp, formatter);
+        return LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(Long.parseLong(timestamp)),
+                ZoneId.systemDefault()
+        );
     }
 
     private static Duration getDurationFromString(String timestamp) {
-        return Duration.ofSeconds(Long.parseLong(timestamp));
+        return Duration.ofMillis(Long.parseLong(timestamp));
     }
 
 

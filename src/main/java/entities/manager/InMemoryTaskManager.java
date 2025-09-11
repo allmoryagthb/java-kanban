@@ -6,8 +6,11 @@ import entities.tasks.Task;
 import exceptions.TaskValidationException;
 import util.Managers;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static enums.Status.*;
 
@@ -148,15 +151,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addSubtask(Subtask subtask) {
-        if (subtask == null || subtask.getId() != null ||
-                subtask.getEpicId() == null || !epics.containsKey(subtask.getEpicId())) {
+        if (subtask == null ||
+                subtask.getId() != null ||
+                subtask.getEpicId() == null ||
+                !epics.containsKey(subtask.getEpicId())) {
             return -1;
         }
         subtask.setId(++idCounter);
         subtasks.put(idCounter, subtask);
         epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
         updateEpicStatus(subtask.getEpicId());
-        add(subtask);
+        updateEpicTimeStatuses(subtask.getEpicId());
         return idCounter;
     }
 
@@ -170,6 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasks.put(subtask.getId(), subtask);
         updateEpicStatus(subtask.getEpicId());
+        updateEpicTimeStatuses(subtask.getEpicId());
         return true;
     }
 
@@ -196,6 +202,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.get(subtasks.get(id).getEpicId()).deleteSubtaskIdById(id);
         historyManager.remove(id);
         updateEpicStatus(subtasks.get(id).getEpicId());
+        updateEpicTimeStatuses(subtasks.get(id).getEpicId());
         return subtasks.remove(id) != null;
     }
 
@@ -206,12 +213,18 @@ public class InMemoryTaskManager implements TaskManager {
         epics.values().forEach(epic -> {
             epic.deleteAllSubtasksIds();
             updateEpicStatus(epic.getId());
+            epic.setStartTime(null);
+            epic.setEndTime(null);
         });
     }
 
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    public Set<Task> getPrioritizedTasks() {
+        return Set.copyOf(prioritizedTasks);
     }
 
     public int getIdCounter() {
@@ -237,22 +250,44 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epic.setStatus(IN_PROGRESS);
+    }
 
-        if (epic.getSubtasksIds().isEmpty())
-            return;
+    private void updateEpicTimeStatuses(int id) {
+        Epic epic = epics.get(id);
+        AtomicReference<LocalDateTime> start = new AtomicReference<>(LocalDateTime.MAX);
+        AtomicReference<LocalDateTime> end = new AtomicReference<>(LocalDateTime.MIN);
 
         epic.getSubtasksIds().forEach(subtaskId -> {
-            Subtask subtask = subtasks.get(subtaskId);
-            if (epic.getStartTime().isAfter(subtask.getStartTime()))
-                epic.setStartTime(subtask.getStartTime());
-            if (epic.getEndTime().isBefore(subtask.getEndTime()))
-                epic.setEndTime(subtask.getEndTime());
+            LocalDateTime subtaskStart = subtasks.get(subtaskId).getStartTime();
+
+            if (subtaskStart.isBefore(start.get())) {
+                start.set(subtaskStart);
+            }
+
+            LocalDateTime subtaskEnd = subtasks.get(subtaskId).getEndTime();
+            if (subtaskEnd.isAfter(end.get())) {
+                end.set(subtaskEnd);
+            }
         });
+
+        epic.setStartTime(start.get());
+        epic.setEndTime(end.get());
+        epic.setDuration(Duration.between(start.get(), end.get()));
     }
 
     private static boolean isOverlapped(Task taskForAddition, Task task) {
-        return taskForAddition.getStartTime().isAfter(task.getEndTime()) ||
-                taskForAddition.getEndTime().isBefore(task.getStartTime());
+        boolean conditionOneTimeOverlapping = (taskForAddition.getStartTime().isBefore(task.getEndTime()) &&
+                taskForAddition.getEndTime().isAfter(task.getEndTime())) ||
+                (task.getStartTime().isBefore(taskForAddition.getEndTime()) &&
+                        task.getEndTime().isAfter(taskForAddition.getEndTime()));
+
+        boolean conditionBothTimesOverlapping = (taskForAddition.getStartTime().isBefore(task.getStartTime()) &&
+                taskForAddition.getEndTime().isAfter(task.getEndTime())) ||
+                (task.getStartTime().isBefore(taskForAddition.getStartTime()) &&
+                        task.getEndTime().isAfter(taskForAddition.getEndTime()));
+
+        return conditionOneTimeOverlapping || conditionBothTimesOverlapping;
+
     }
 
     private void add(Task taskToAdd) {
@@ -262,13 +297,13 @@ public class InMemoryTaskManager implements TaskManager {
                 .findFirst()
                 .ifPresentOrElse(
                         overlappedTask -> {
-                            String message = "Новая задача с id '%s'\n".formatted(taskToAdd.getId()) +
+                            String message = "Новая задача с id '%d' %s\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
                                     "startTime : '%s'\n"
                                             .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
                                     "endTime : '%s'\n"
                                             .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "пересекается с существующей задачей с id '%d'\n"
-                                            .formatted(overlappedTask.getId()) +
+                                    "пересекается с существующей задачей с id '%d' %s\n"
+                                            .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
                                     "startTime : '%s'\n"
                                             .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
                                     "endTime : '%s'\n"

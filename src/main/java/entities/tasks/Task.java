@@ -67,8 +67,16 @@ public class Task {
         return this.duration;
     }
 
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
     public LocalDateTime getStartTime() {
         return startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
     }
 
     public LocalDateTime getEndTime() {

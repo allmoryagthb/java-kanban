@@ -4,8 +4,10 @@ import entities.tasks.Epic;
 import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
+import exceptions.TaskValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import util.Managers;
 
@@ -14,18 +16,21 @@ import java.time.LocalDateTime;
 
 class InMemoryTaskManagerTest {
 
-    private TaskManager taskManager;
+    private InMemoryTaskManager taskManager;
 
     @BeforeEach
     void setUp() {
-        taskManager = Managers.getDefault();
+        taskManager = Managers.getInMemoryTaskManager();
     }
 
     @Test
     void checkManagerSavingEntities() {
-        taskManager.addTask(new Task("task_title_1", "task_desc_1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
-        taskManager.addTask(new Task("task_title_2", "task_desc_2", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
-        taskManager.addTask(new Task("task_title_3", "task_desc_3", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
+        taskManager.addTask(new Task("task_title_1", "task_desc_1", Status.NEW,
+                LocalDateTime.now(), Duration.ofMinutes(10)));
+        taskManager.addTask(new Task("task_title_2", "task_desc_2", Status.NEW,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(10)));
+        taskManager.addTask(new Task("task_title_3", "task_desc_3", Status.NEW,
+                LocalDateTime.now().plusHours(1), Duration.ofMinutes(10)));
 
         Assertions.assertEquals(3, taskManager.getAllTasks().size(), "Число задач не равно 3");
         Task task = taskManager.getAllTasks().get(1);
@@ -112,17 +117,73 @@ class InMemoryTaskManagerTest {
 
     @Test
     void deleteTaskTest() {
-        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
         Task task2 = new Task("t2", "t2", Status.IN_PROGRESS, LocalDateTime.now(), Duration.ofMinutes(10));
-        Task task3 = new Task("t3", "t3", Status.DONE, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task3 = new Task("t3", "t3", Status.DONE, LocalDateTime.now().minusHours(2), Duration.ofMinutes(10));
         int index1 = taskManager.addTask(task1);
-        int index2 =  taskManager.addTask(task2);
-        int index3 =  taskManager.addTask(task3);
+        int index2 = taskManager.addTask(task2);
+        int index3 = taskManager.addTask(task3);
 
         taskManager.deleteTaskById(index2);
         Assertions.assertEquals(2, taskManager.getAllTasks().size(), "Размер коллекции не равен 2");
         Assertions.assertNull(taskManager.getTask(index2), "Задача не была удалена");
         Assertions.assertNotNull(taskManager.getTask(index1), "Задача была удалена");
         Assertions.assertNotNull(taskManager.getTask(index3), "Задача была удалена");
+    }
+
+    @Test
+    void checkOverlappingException() {
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
+        Task task2 = new Task("t2", "t2", Status.IN_PROGRESS, LocalDateTime.now().minusMinutes(5), Duration.ofMinutes(10));
+        taskManager.addTask(task1);
+        Assertions.assertThrowsExactly(TaskValidationException.class, () -> taskManager.addTask(task2));
+    }
+
+    @Test
+    @DisplayName("Проверить, что настройки времени эпика изменяются при добавлении подзадач")
+    void checkEpicTimeSettings() {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(10));
+        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 1,
+                LocalDateTime.now(), Duration.ofMinutes(10));
+        Subtask subtask3 = new Subtask("subt3", "desc3", Status.NEW, 1,
+                LocalDateTime.now().plusMinutes(30), Duration.ofMinutes(10));
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
+
+        Assertions.assertEquals(subtask1.getStartTime(), epic.getStartTime(),
+                "Начальное время Эпика не совпадает с ожидаемым");
+        Assertions.assertEquals(subtask3.getEndTime(), epic.getEndTime(),
+                "Конечное время Эпика не совпадает с ожидаемым");
+    }
+
+    @Test
+    @DisplayName("Проверить, что настройки времени эпика изменяются после изменений настроек времени подзадач")
+    void checkEpicTimeSettingsAfterChangingSubtaskTimeSettings() {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(10));
+        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 1,
+                LocalDateTime.now(), Duration.ofMinutes(10));
+        Subtask subtask3 = new Subtask("subt3", "desc3", Status.NEW, 1,
+                LocalDateTime.now().plusMinutes(50), Duration.ofMinutes(10));
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
+
+        Subtask tempSubtask = taskManager.getSubtask(2);
+        tempSubtask.setStartTime(LocalDateTime.now().plusHours(3));
+        taskManager.updateSubtask(tempSubtask);
+
+        Assertions.assertEquals(subtask2.getStartTime(), epic.getStartTime(),
+                "Начальное время Эпика не совпадает с ожидаемым");
+        Assertions.assertEquals(subtask1.getEndTime(), epic.getEndTime(),
+                "Конечное время Эпика не совпадает с ожидаемым");
     }
 }

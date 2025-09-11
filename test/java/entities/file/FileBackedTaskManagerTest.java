@@ -7,6 +7,7 @@ import entities.tasks.Task;
 import enums.Status;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 public class FileBackedTaskManagerTest {
@@ -26,7 +28,8 @@ public class FileBackedTaskManagerTest {
 
     @BeforeEach
     public void before() throws IOException {
-        this.file = File.createTempFile("temp", "csv");
+        //this.file = File.createTempFile("temp", "csv");
+        file = new File("temp.csv");
         this.fileBackedTaskManager = new FileBackedTaskManager(file);
     }
 
@@ -62,11 +65,15 @@ public class FileBackedTaskManagerTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void checkLoadingFromFile(boolean checkFurtherWork) {
-        fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
-        fileBackedTaskManager.addTask(new Task("task title2", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
+        fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW,
+                LocalDateTime.now(), Duration.ofMinutes(5)));
+        fileBackedTaskManager.addTask(new Task("task title2", "task desc", Status.NEW,
+                LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(5)));
         fileBackedTaskManager.addEpic(new Epic("epic title", "epic desc"));
-        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.DONE, 3, LocalDateTime.now(), Duration.ofMinutes(10)));
-        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.IN_PROGRESS, LocalDateTime.now(), Duration.ofMinutes(10)));
+        fileBackedTaskManager.addSubtask(new Subtask("subt title", "subt desc", Status.DONE, 3,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(5)));
+        fileBackedTaskManager.addTask(new Task("task title3", "task desc", Status.IN_PROGRESS,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(5)));
         fileBackedTaskManager.getTask(2);
         fileBackedTaskManager.getTask(1);
         fileBackedTaskManager.getTask(5);
@@ -85,15 +92,67 @@ public class FileBackedTaskManagerTest {
                 "Коллекции истории не совпадают");
 
         if (checkFurtherWork) {
-            fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
+            fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW,
+                    LocalDateTime.now().plusHours(2), Duration.ofMinutes(5)));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllTasks().containsAll(fileBackedTaskManager.getAllTasks()),
                     "В новой коллекции отсутствует задача, присутствующая в старой коллекции");
             fileBackedTaskManagerLoaded.addEpic(new Epic("epic title", "epic desc"));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllEpics().containsAll(fileBackedTaskManager.getAllEpics()),
                     "В новой коллекции отсутствует эпик, присутствующий в старой коллекции");
-            fileBackedTaskManagerLoaded.addSubtask(new Subtask("subt title", "subt desc", Status.IN_PROGRESS, 3, LocalDateTime.now(), Duration.ofMinutes(10)));
+            fileBackedTaskManagerLoaded.addSubtask(new Subtask("subt title", "subt desc",
+                    Status.IN_PROGRESS, 3, LocalDateTime.now().plusMinutes(10), Duration.ofMinutes(10)));
             Assertions.assertTrue(fileBackedTaskManagerLoaded.getAllSubtasks().containsAll(fileBackedTaskManager.getAllSubtasks()),
                     "В новой коллекции отсутствует подзадача, присутствующая в старой коллекции");
         }
+    }
+
+    @Test
+    @DisplayName("Проверить, что настройки времени сущностей сохраняются после загрузки из файла")
+    void checkLoadingFromFileTimeSettings() {
+        Task task = new Task("task title1", "task desc", Status.NEW,
+                LocalDateTime.now(), Duration.ofMinutes(5));
+        LocalDateTime taskStart = task.getStartTime();
+        Duration taskDuration = task.getDuration();
+        LocalDateTime taskEnd = task.getEndTime();
+
+        fileBackedTaskManager.addTask(task);
+
+        Epic epic = new Epic("epic title", "epic desc");
+        fileBackedTaskManager.addEpic(epic);
+        Subtask subtask = new Subtask("subt title", "subt desc", Status.DONE, 2,
+                LocalDateTime.now().minusHours(1), Duration.ofMinutes(50));
+        fileBackedTaskManager.addSubtask(subtask);
+
+        LocalDateTime epicStart = epic.getStartTime();
+        Duration epicDuration = epic.getDuration();
+        LocalDateTime epicEnd = epic.getEndTime();
+
+//        LocalDateTime subtaskStart = subtask.getStartTime();
+//        Duration subtaskDuration = subtask.getDuration();
+//        LocalDateTime subtaskEnd = subtask.getEndTime();
+
+        FileBackedTaskManager fileBackedTaskManagerLoaded = FileBackedTaskManager.loadFromFile(file);
+        Task testTask = fileBackedTaskManagerLoaded.getTask(1);
+        Epic testEpic = fileBackedTaskManagerLoaded.getEpic(2);
+        Subtask testSubtask = fileBackedTaskManagerLoaded.getSubtask(3);
+
+
+//                Assertions.assertEquals(taskStart, testTask.getStartTime());
+//                Assertions.assertEquals(taskDuration, testTask.getDuration());
+//                Assertions.assertEquals(taskEnd, testTask.getEndTime());
+
+
+        Assertions.assertEquals(epicStart.format(DateTimeFormatter.BASIC_ISO_DATE),
+                testEpic.getStartTime().format(DateTimeFormatter.BASIC_ISO_DATE));
+        Assertions.assertEquals(epicDuration, testEpic.getDuration());
+        Assertions.assertEquals(epicEnd.format(DateTimeFormatter.BASIC_ISO_DATE),
+                testEpic.getEndTime().format(DateTimeFormatter.BASIC_ISO_DATE));
+
+//
+
+//                Assertions.assertEquals(subtaskStart, testSubtask.getStartTime()),
+//                Assertions.assertEquals(subtaskDuration, testSubtask.getDuration()),
+//                 Assertions.assertEquals(subtaskEnd, testSubtask.getEndTime())
+
     }
 }

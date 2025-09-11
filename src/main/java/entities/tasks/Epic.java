@@ -2,6 +2,7 @@ package entities.tasks;
 
 import enums.Status;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -9,15 +10,16 @@ import java.util.Set;
 
 public class Epic extends Task {
     private Set<Integer> subtasksIds = new HashSet<>();
-    private LocalDateTime startTime;
     private LocalDateTime endTime;
 
     public Epic(String title, String description) {
-        super(title, description, Status.NEW, null, null);
+        super(title, description, Status.NEW, LocalDateTime.now(), Duration.ofNanos(0));
+        this.endTime = LocalDateTime.now();
     }
 
     public Epic(int id, String title, String description) {
-        super(id, title, description, Status.NEW, null, null);
+        super(id, title, description, Status.NEW, LocalDateTime.now(), Duration.ofNanos(0));
+        this.endTime = LocalDateTime.now();
     }
 
     public void addSubtask(int id) {
@@ -34,10 +36,6 @@ public class Epic extends Task {
 
     public void deleteAllSubtasksIds() {
         subtasksIds.clear();
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        super.startTime = startTime;
     }
 
     public void setEndTime(LocalDateTime endTime) {

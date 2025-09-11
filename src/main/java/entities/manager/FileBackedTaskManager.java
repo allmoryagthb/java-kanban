@@ -185,7 +185,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.newLine();
 
             List.of(tasks, epics, subtasks).forEach(collection ->
-                    collection.forEach((key, value) -> {
+                    collection.values().forEach(value -> {
                         try {
                             writer.write(CSVTaskFormat.toString(value));
                             writer.newLine();
