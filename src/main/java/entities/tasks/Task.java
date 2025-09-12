@@ -15,6 +15,10 @@ public class Task {
     protected LocalDateTime startTime;
 
     public Task(String title, String description, Status status, LocalDateTime startTime, Duration duration) {
+        if (startTime == null)
+            startTime = LocalDateTime.now();
+        if (duration == null)
+            duration = Duration.ofMillis(0);
         this.title = title;
         this.description = description;
         this.status = status;

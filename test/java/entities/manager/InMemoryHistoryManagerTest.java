@@ -23,7 +23,7 @@ class InMemoryHistoryManagerTest {
     @Test
     void checkHistoryManagerSavingEntity() {
         Task task1 = new Task(1, "Aaa", "Aaa", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));
-        Epic epic1 = new Epic(2, "Bbb", "Bbb");
+        Epic epic1 = new Epic(2, "Bbb", "Bbb", null, null);
         Subtask subtask1 = new Subtask(3, "Ccc", "Ccc", Status.NEW, 1, LocalDateTime.now(), Duration.ofMinutes(10));
 
         historyManager.addTask(task1);

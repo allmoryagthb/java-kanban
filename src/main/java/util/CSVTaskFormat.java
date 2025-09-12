@@ -81,7 +81,9 @@ public class CSVTaskFormat {
         final Epic epic = new Epic(
                 Integer.parseInt(splitLine[0]),
                 splitLine[2],
-                splitLine[4]);
+                splitLine[4],
+                getLocalDateTimeFromString(splitLine[5]),
+                getDurationFromString(splitLine[6]));
         epic.setStatus(getStatusFromString(splitLine[3]));
         return epic;
     }
@@ -110,7 +112,7 @@ public class CSVTaskFormat {
 
     private static LocalDateTime getLocalDateTimeFromString(String timestamp) {
         return LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(Long.parseLong(timestamp)),
+                Instant.ofEpochSecond(Long.parseLong(timestamp)),
                 ZoneId.systemDefault()
         );
     }

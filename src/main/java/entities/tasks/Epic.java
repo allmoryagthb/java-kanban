@@ -13,12 +13,12 @@ public class Epic extends Task {
     private LocalDateTime endTime;
 
     public Epic(String title, String description) {
-        super(title, description, Status.NEW, LocalDateTime.now(), Duration.ofNanos(0));
+        super(title, description, Status.NEW, null, null);
         this.endTime = LocalDateTime.now();
     }
 
-    public Epic(int id, String title, String description) {
-        super(id, title, description, Status.NEW, LocalDateTime.now(), Duration.ofNanos(0));
+    public Epic(int id, String title, String description, LocalDateTime startTime, Duration duration) {
+        super(id, title, description, Status.NEW, startTime, duration);
         this.endTime = LocalDateTime.now();
     }
 
@@ -45,11 +45,6 @@ public class Epic extends Task {
     @Override
     public LocalDateTime getStartTime() {
         return startTime;
-    }
-
-    @Override
-    public LocalDateTime getEndTime() {
-        return this.endTime;
     }
 
     @Override

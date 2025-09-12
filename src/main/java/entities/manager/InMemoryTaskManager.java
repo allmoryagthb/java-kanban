@@ -18,7 +18,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Task> tasks;
     protected final Map<Integer, Epic> epics;
     protected final Map<Integer, Subtask> subtasks;
-    protected final Set<Task> prioritizedTasks;
+    protected final TreeSet<Task> prioritizedTasks;
     protected final HistoryManager historyManager;
 
     private int idCounter;
@@ -162,6 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
         updateEpicStatus(subtask.getEpicId());
         updateEpicTimeStatuses(subtask.getEpicId());
+        add(subtask);
         return idCounter;
     }
 
@@ -223,8 +224,8 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    public Set<Task> getPrioritizedTasks() {
-        return Set.copyOf(prioritizedTasks);
+    public TreeSet<Task> getPrioritizedTasks() {
+        return new TreeSet<>(prioritizedTasks);
     }
 
     public int getIdCounter() {
@@ -297,12 +298,12 @@ public class InMemoryTaskManager implements TaskManager {
                 .findFirst()
                 .ifPresentOrElse(
                         overlappedTask -> {
-                            String message = "Новая задача с id '%d' %s\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
+                            String message = "Новая задача с id '%d' title = '%s'\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
                                     "startTime : '%s'\n"
                                             .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
                                     "endTime : '%s'\n"
                                             .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "пересекается с существующей задачей с id '%d' %s\n"
+                                    "пересекается с существующей задачей с id '%d' title = '%s'\n"
                                             .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
                                     "startTime : '%s'\n"
                                             .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +

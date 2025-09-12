@@ -13,6 +13,7 @@ import util.Managers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.TreeSet;
 
 class InMemoryTaskManagerTest {
 
@@ -43,8 +44,10 @@ class InMemoryTaskManagerTest {
         Epic epic = taskManager.getAllEpics().getFirst();
         Assertions.assertEquals(epic, taskManager.getAllEpics().getFirst(), "Эпики не равны");
 
-        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 4, LocalDateTime.now(), Duration.ofMinutes(10));
-        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 4, LocalDateTime.now(), Duration.ofMinutes(10));
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 4,
+                LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 4,
+                LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
 
         taskManager.addSubtask(subtask1);
         taskManager.addSubtask(subtask2);
@@ -60,7 +63,7 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(-1, taskManager.addTask(task),
                 "Задача с id в параметрах была добавлена в менеджер");
 
-        Epic epic = new Epic(1, "title", "desc");
+        Epic epic = new Epic(1, "title", "desc", null, null);
         Assertions.assertEquals(-1, taskManager.addEpic(epic),
                 "Эпик с id в параметрах был добавлен в менеджер");
 
@@ -185,5 +188,27 @@ class InMemoryTaskManagerTest {
                 "Начальное время Эпика не совпадает с ожидаемым");
         Assertions.assertEquals(subtask1.getEndTime(), epic.getEndTime(),
                 "Конечное время Эпика не совпадает с ожидаемым");
+    }
+
+    @Test
+    @DisplayName("Проверить, что коллекция задач выставляет элементы по приоритету времени")
+    void checkPrioritizedTasksIsWorkingCorrect() {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                LocalDateTime.now().plusHours(5), Duration.ofMinutes(10));
+        taskManager.addSubtask(subtask1);
+
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().minusDays(1), Duration.ofMinutes(10));
+        Task task2 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        TreeSet<Task> prioSet = taskManager.getPrioritizedTasks();
+        Assertions.assertNotNull(prioSet);
+        Assertions.assertFalse(prioSet.isEmpty());
+        Assertions.assertEquals(task1, prioSet.getFirst());
+        Assertions.assertEquals(subtask1, prioSet.getLast());
     }
 }
