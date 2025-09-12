@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Logger;
 
 public class FileBackedTaskManagerTest {
@@ -136,24 +137,25 @@ public class FileBackedTaskManagerTest {
         Epic testEpic = fileBackedTaskManagerLoaded.getAllEpics().getFirst();
         Subtask testSubtask = fileBackedTaskManagerLoaded.getAllSubtasks().getFirst();
 
-        Assertions.assertEquals(taskStart.withNano(0), testTask.getStartTime().withNano(0),
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Assertions.assertEquals(taskStart.format(format), testTask.getStartTime().format(format),
                 "Начальное время задач отличается");
         Assertions.assertEquals(taskDuration, testTask.getDuration(), "Продолжительность задач отличается");
-        Assertions.assertEquals(taskEnd.withNano(0), testTask.getEndTime().withNano(0),
+        Assertions.assertEquals(taskEnd.format(format), testTask.getEndTime().format(format),
                 "Конечное время задач отличается");
 
 
-        Assertions.assertEquals(epicStart.withNano(0), testEpic.getStartTime().withNano(0),
+        Assertions.assertEquals(epicStart.format(format), testEpic.getStartTime().format(format),
                 "Начальное время эпиков отличается");
         Assertions.assertEquals(epicDuration, testEpic.getDuration(),"Продолжительность эпиков отличается");
-        Assertions.assertEquals(epicEnd.withNano(0), testEpic.getEndTime().withNano(0),
+        Assertions.assertEquals(epicEnd.format(format), testEpic.getEndTime().format(format),
                 "Конечное время эпиков отличается");
 
 
-        Assertions.assertEquals(subtaskStart.withNano(0), testSubtask.getStartTime().withNano(0),
+        Assertions.assertEquals(subtaskStart.format(format), testSubtask.getStartTime().format(format),
                 "Начальное время подзадач отличается");
         Assertions.assertEquals(subtaskDuration, testSubtask.getDuration(),"Продолжительность подзадач отличается");
-        Assertions.assertEquals(subtaskEnd.withNano(0), testSubtask.getEndTime().withNano(0),
+        Assertions.assertEquals(subtaskEnd.format(format), testSubtask.getEndTime().format(format),
                 "Конечное время подзадач отличается");
     }
 }
