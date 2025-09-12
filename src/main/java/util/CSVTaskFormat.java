@@ -33,7 +33,7 @@ public class CSVTaskFormat {
                     task.getStatus(),
                     task.getDescription(),
                     ((Subtask) task).getEpicId(),
-                    task.getStartTime().atZone(ZoneId.of("Europe/Moscow")).toEpochSecond(),
+                    task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
                     task.getDuration().toMillis()));
         }
         return String.format("%d,%s,%s,%s,%s,%d,%d".formatted(
@@ -42,7 +42,7 @@ public class CSVTaskFormat {
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
-                task.getStartTime().atZone(ZoneId.of("Europe/Moscow")).toEpochSecond(),
+                task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
                 task.getDuration().toMillis()));
     }
 
