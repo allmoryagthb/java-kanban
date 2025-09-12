@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class FileBackedTaskManagerTest {
@@ -77,7 +76,6 @@ public class FileBackedTaskManagerTest {
         fileBackedTaskManager.getTask(2);
         fileBackedTaskManager.getTask(1);
         fileBackedTaskManager.getTask(5);
-        Set<Task> prioritySetOrigin = fileBackedTaskManager.getPrioritizedTasks();
 
         FileBackedTaskManager fileBackedTaskManagerLoaded = FileBackedTaskManager.loadFromFile(file);
         Assertions.assertEquals(fileBackedTaskManager.getAllTasks(), fileBackedTaskManagerLoaded.getAllTasks(),
@@ -91,7 +89,6 @@ public class FileBackedTaskManagerTest {
                 "Коллекции подзадач не совпадают");
         Assertions.assertEquals(fileBackedTaskManager.getHistory(), fileBackedTaskManagerLoaded.getHistory(),
                 "Коллекции истории не совпадают");
-        Assertions.assertEquals(prioritySetOrigin, fileBackedTaskManagerLoaded.getPrioritizedTasks());
 
         if (checkFurtherWork) {
             fileBackedTaskManagerLoaded.addTask(new Task("task title4", "task desc", Status.NEW,

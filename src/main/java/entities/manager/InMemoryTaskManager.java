@@ -225,7 +225,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public TreeSet<Task> getPrioritizedTasks() {
-        return new TreeSet<>(prioritizedTasks);
+        return prioritizedTasks;
     }
 
     public int getIdCounter() {
@@ -277,15 +277,17 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private static boolean isOverlapped(Task taskForAddition, Task task) {
-        boolean conditionOneTimeOverlapping = (taskForAddition.getStartTime().isBefore(task.getEndTime()) &&
-                taskForAddition.getEndTime().isAfter(task.getEndTime())) ||
-                (task.getStartTime().isBefore(taskForAddition.getEndTime()) &&
-                        task.getEndTime().isAfter(taskForAddition.getEndTime()));
+        LocalDateTime start1 = taskForAddition.getStartTime();
+        LocalDateTime end1 = taskForAddition.getEndTime();
+        LocalDateTime start2 = task.getStartTime();
+        LocalDateTime end2 = task.getEndTime();
 
-        boolean conditionBothTimesOverlapping = (taskForAddition.getStartTime().isBefore(task.getStartTime()) &&
-                taskForAddition.getEndTime().isAfter(task.getEndTime())) ||
-                (task.getStartTime().isBefore(taskForAddition.getStartTime()) &&
-                        task.getEndTime().isAfter(taskForAddition.getEndTime()));
+
+        boolean conditionOneTimeOverlapping = (start1.isBefore(end2) && end1.isAfter(end2)) ||
+                (start2.isBefore(end1) && end2.isAfter(end1));
+
+        boolean conditionBothTimesOverlapping = (start1.isBefore(start2) && end1.isAfter(end2)) ||
+                (start2.isBefore(start1) && end2.isAfter(end1));
 
         return conditionOneTimeOverlapping || conditionBothTimesOverlapping;
 

@@ -13,7 +13,8 @@ import util.Managers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 class InMemoryTaskManagerTest {
 
@@ -205,10 +206,9 @@ class InMemoryTaskManagerTest {
         taskManager.addTask(task1);
         taskManager.addTask(task2);
 
-        TreeSet<Task> prioSet = taskManager.getPrioritizedTasks();
-        Assertions.assertNotNull(prioSet);
-        Assertions.assertFalse(prioSet.isEmpty());
-        Assertions.assertEquals(task1, prioSet.getFirst());
-        Assertions.assertEquals(subtask1, prioSet.getLast());
+        List<Task> prios = new ArrayList<>(taskManager.getPrioritizedTasks());
+        Assertions.assertEquals(task1, prios.getFirst());
+        Assertions.assertEquals(subtask1, prios.getLast());
+        Assertions.assertEquals(task2, prios.get(1));
     }
 }
