@@ -13,6 +13,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class CSVTaskFormat {
 
@@ -111,10 +112,8 @@ public class CSVTaskFormat {
     }
 
     private static LocalDateTime getLocalDateTimeFromString(String timestamp) {
-        return LocalDateTime.ofInstant(
-                Instant.ofEpochSecond(Long.parseLong(timestamp)),
-                ZoneId.systemDefault()
-        );
+        return Instant.ofEpochSecond(Long.parseLong(timestamp))
+                .atZone(TimeZone.getDefault().toZoneId()).toLocalDateTime();
     }
 
     private static Duration getDurationFromString(String timestamp) {
