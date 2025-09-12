@@ -9,7 +9,8 @@ import java.io.File;
 
 public class Managers {
 
-    private Managers(){}
+    private Managers(){
+    }
 
     public static FileBackedTaskManager getDefault() {
         File file = new File("vault.csv");
