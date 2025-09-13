@@ -14,12 +14,18 @@ public class Epic extends Task {
 
     public Epic(String title, String description) {
         super(title, description, Status.NEW, null, null);
-        this.endTime = LocalDateTime.now();
+        this.endTime = null;
     }
 
     public Epic(int id, String title, String description, LocalDateTime startTime, Duration duration) {
         super(id, title, description, Status.NEW, startTime, duration);
-        this.endTime = LocalDateTime.now();
+        this.endTime = null;
+    }
+
+    public Epic(Epic epic) {
+        this(epic.getId(), epic.getTitle(), epic.getDescription(), epic.getStartTime(), epic.getDuration());
+        this.endTime = epic.getEndTime();
+        this.subtasksIds = epic.subtasksIds;
     }
 
     public void addSubtask(int id) {
@@ -43,8 +49,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public LocalDateTime getStartTime() {
-        return startTime;
+    public LocalDateTime getEndTime() {
+        return this.endTime;
     }
 
     @Override

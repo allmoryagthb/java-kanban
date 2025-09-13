@@ -15,18 +15,14 @@ public class Task {
     protected LocalDateTime startTime;
 
     public Task(String title, String description, Status status, LocalDateTime startTime, Duration duration) {
-        if (startTime == null)
-            startTime = LocalDateTime.now();
-        if (duration == null)
-            duration = Duration.ofMillis(0);
         this.title = title;
         this.description = description;
         this.status = status;
-        this.duration = duration;
         this.startTime = startTime;
+        this.duration = duration;
     }
 
-    public Task(Integer id, String title, String description, Status status,LocalDateTime startTime, Duration duration) {
+    public Task(Integer id, String title, String description, Status status, LocalDateTime startTime, Duration duration) {
         this(title, description, status, startTime, duration);
         this.id = id;
     }
@@ -84,6 +80,8 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null)
+            return null;
         return startTime.plus(duration);
     }
 

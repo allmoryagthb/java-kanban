@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import util.Managers;
 
 import java.time.Duration;
@@ -185,14 +187,14 @@ class InMemoryTaskManagerTest {
         tempSubtask.setStartTime(LocalDateTime.now().plusHours(3));
         taskManager.updateSubtask(tempSubtask);
 
-        Assertions.assertEquals(subtask2.getStartTime(), epic.getStartTime(),
+        Assertions.assertEquals(taskManager.getPrioritizedTasks().first().getStartTime(), epic.getStartTime(),
                 "Начальное время Эпика не совпадает с ожидаемым");
-        Assertions.assertEquals(subtask1.getEndTime(), epic.getEndTime(),
+        Assertions.assertEquals(taskManager.getPrioritizedTasks().last().getEndTime(), epic.getEndTime(),
                 "Конечное время Эпика не совпадает с ожидаемым");
     }
 
     @Test
-    @DisplayName("Проверить, что коллекция задач выставляет элементы по приоритету времени")
+    @DisplayName("Проверить, что коллекция приоритетных задач выставляет элементы по приоритету времени")
     void checkPrioritizedTasksIsWorkingCorrect() {
         Epic epic = new Epic("epic1", "epic1_desc");
         taskManager.addEpic(epic);
@@ -210,5 +212,148 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(task1, prios.getFirst());
         Assertions.assertEquals(subtask1, prios.getLast());
         Assertions.assertEquals(task2, prios.get(1));
+    }
+
+    @Test
+    @DisplayName("Проверить, что коллекция приоритетных задач обновляется после обновления задачи")
+    void checkPrioritizedTasksIsWorkingCorrectAfterTaskUpdate() {
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().minusDays(1), Duration.ofMinutes(10));
+        Task task2 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        taskManager.updateTask(new Task(1, "t1 upd", "t1 upd desc", Status.IN_PROGRESS,
+                LocalDateTime.now().plusDays(10), Duration.ofMinutes(5)));
+
+        Assertions.assertEquals(task2.getId(), taskManager.prioritizedTasks.getFirst().getId());
+        Assertions.assertEquals(task1.getId(), taskManager.prioritizedTasks.getLast().getId());
+    }
+
+    @Test
+    @DisplayName("Проверить, что коллекция приоритетных задач обновляется после удаления задачи")
+    void checkPrioritizedTasksIsWorkingCorrectAfterOneTaskDeletion() {
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().minusDays(1), Duration.ofMinutes(10));
+        Task task2 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        taskManager.deleteTaskById(2);
+
+        Assertions.assertEquals(1, taskManager.prioritizedTasks.size());
+        Assertions.assertEquals(task1.getId(), taskManager.prioritizedTasks.getFirst().getId());
+    }
+
+    @Test
+    @DisplayName("Проверить, что коллекция приоритетных задач обновляется после удаления всех задач")
+    void checkPrioritizedTasksIsWorkingCorrectAfterAllTaskDeletion() {
+        Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().minusDays(1), Duration.ofMinutes(10));
+        Task task2 = new Task("t1", "t1", Status.NEW, LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        taskManager.deleteAllTasks();
+
+        Assertions.assertTrue(taskManager.prioritizedTasks.isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"id", "all"})
+    @DisplayName("Проверить, что коллекция приоритетных задач обновляется после удаления эпика")
+    void checkPrioritizedTasksIsWorkingCorrectAfterEpicDeletion(String option) {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 1,
+                LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        Subtask subtask3 = new Subtask("subt3", "desc3", Status.NEW, 1,
+                LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
+
+        if (option.equalsIgnoreCase("id"))
+            taskManager.deleteEpicById(1);
+        if (option.equalsIgnoreCase("all"))
+            taskManager.deleteAllEpics();
+
+        Assertions.assertTrue(taskManager.prioritizedTasks.isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"id", "all"})
+    @DisplayName("Проверить, что коллекция приоритетных задач обновляется после удаления подзадачи")
+    void checkPrioritizedTasksIsWorkingCorrectAfterSubtaskDeletion(String option) {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                LocalDateTime.now().plusHours(3), Duration.ofMinutes(10));
+        Subtask subtask2 = new Subtask("subt2", "desc2", Status.NEW, 1,
+                LocalDateTime.now().plusHours(2), Duration.ofMinutes(10));
+        Subtask subtask3 = new Subtask("subt3", "desc3", Status.NEW, 1,
+                LocalDateTime.now().plusHours(1), Duration.ofMinutes(10));
+        taskManager.addSubtask(subtask1);
+        taskManager.addSubtask(subtask2);
+        taskManager.addSubtask(subtask3);
+
+        if (option.equalsIgnoreCase("id")) {
+            taskManager.deleteSubtaskById(2);
+            Assertions.assertEquals(2, taskManager.getPrioritizedTasks().size());
+            Assertions.assertEquals(subtask3, taskManager.getPrioritizedTasks().getFirst());
+            Assertions.assertEquals(subtask2, taskManager.getPrioritizedTasks().getLast());
+        }
+        if (option.equalsIgnoreCase("all")) {
+            taskManager.deleteAllSubtasks();
+            Assertions.assertTrue(taskManager.prioritizedTasks.isEmpty());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"null-null", "start-null", "null-end"})
+    @DisplayName("Проверить заполнения поле Эпика при наличии null полей у подзадач")
+    void checkEpicUpdateWithSubtasksTimeNullFields(String option) {
+        Epic epic = new Epic("epic1", "epic1_desc");
+        taskManager.addEpic(epic);
+
+        if (option.equalsIgnoreCase("null-null")) {
+            Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                    null, null);
+            taskManager.addSubtask(subtask1);
+
+            Assertions.assertNull(epic.getStartTime());
+            Assertions.assertNull(epic.getEndTime());
+            Assertions.assertNull(epic.getDuration());
+            Assertions.assertEquals(1, taskManager.getAllEpics().size());
+            Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
+            Assertions.assertTrue(taskManager.prioritizedTasks.isEmpty());
+        }
+
+        if (option.equalsIgnoreCase("start-null")) {
+            Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                    LocalDateTime.now(), null);
+            taskManager.addSubtask(subtask1);
+
+            Assertions.assertNotNull(epic.getStartTime());
+            Assertions.assertNull(epic.getEndTime());
+            Assertions.assertNull(epic.getDuration());
+            Assertions.assertEquals(1, taskManager.getAllEpics().size());
+            Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
+            Assertions.assertEquals(1, taskManager.prioritizedTasks.size());
+        }
+
+        if (option.equalsIgnoreCase("null-end")) {
+            Subtask subtask1 = new Subtask("subt1", "desc1", Status.NEW, 1,
+                    null, Duration.ofMinutes(5));
+            taskManager.addSubtask(subtask1);
+
+            Assertions.assertNull(epic.getStartTime());
+            Assertions.assertNull(epic.getEndTime());
+            Assertions.assertNotNull(epic.getDuration());
+            Assertions.assertEquals(1, taskManager.getAllEpics().size());
+            Assertions.assertEquals(1, taskManager.getAllSubtasks().size());
+            Assertions.assertTrue(taskManager.prioritizedTasks.isEmpty());
+        }
     }
 }

@@ -21,12 +21,12 @@ public class CSVTaskFormat {
     }
 
     public static String getHeader() {
-        return "id,type,name,status,description,epic";
+        return "id,type,name,status,description,epic,startTime,duration,endTime";
     }
 
     public static String toString(Task task) {
         if (task instanceof Subtask) {
-            return String.format("%d,%s,%s,%s,%s,%d,%d,%d".formatted(
+            return String.format("%d,%s,%s,%s,%s,%d,%d,%d,%d".formatted(
                     task.getId(),
                     task.getClass().getSimpleName(),
                     task.getTitle(),
@@ -34,16 +34,18 @@ public class CSVTaskFormat {
                     task.getDescription(),
                     ((Subtask) task).getEpicId(),
                     task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
-                    task.getDuration().toMillis()));
+                    task.getDuration().toMillis(),
+                    task.getEndTime().atZone(ZoneId.systemDefault()).toEpochSecond()));
         }
-        return String.format("%d,%s,%s,%s,%s,%d,%d".formatted(
+        return String.format("%d,%s,%s,%s,%s,%d,%d,%d".formatted(
                 task.getId(),
                 task.getClass().getSimpleName(),
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
                 task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
-                task.getDuration().toMillis()));
+                task.getDuration().toMillis(),
+                task.getEndTime().atZone(ZoneId.systemDefault()).toEpochSecond()));
     }
 
     public static String toString(Map<Integer, Task> collection) {
@@ -86,6 +88,7 @@ public class CSVTaskFormat {
                 getLocalDateTimeFromString(splitLine[5]),
                 getDurationFromString(splitLine[6]));
         epic.setStatus(getStatusFromString(splitLine[3]));
+        epic.setEndTime(getLocalDateTimeFromString(splitLine[7]));
         return epic;
     }
 

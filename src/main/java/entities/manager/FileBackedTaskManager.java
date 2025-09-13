@@ -188,12 +188,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
             List.of(tasks, epics, subtasks).forEach(collection ->
                     collection.values().forEach(value -> {
-                        try {
-                            writer.write(CSVTaskFormat.toString(value));
-                            writer.newLine();
-                        } catch (IOException e) {
-                            throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
-                        }
+                        if (value.getStartTime() != null && value.getEndTime() != null && value.getDuration() != null)
+                            try {
+                                writer.write(CSVTaskFormat.toString(value));
+                                writer.newLine();
+                            } catch (IOException e) {
+                                throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
+                            }
                     }));
             writer.newLine();
             writer.write(CSVTaskFormat.toString(historyManager));
