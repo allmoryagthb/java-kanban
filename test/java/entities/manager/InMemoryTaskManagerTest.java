@@ -191,6 +191,11 @@ class InMemoryTaskManagerTest {
                 "Начальное время Эпика не совпадает с ожидаемым");
         Assertions.assertEquals(taskManager.getPrioritizedTasks().last().getEndTime(), epic.getEndTime(),
                 "Конечное время Эпика не совпадает с ожидаемым");
+
+        Duration sumDuration = taskManager.getEpicSubtasks(epic.getId()).stream()
+                .map(Task::getDuration)
+                .reduce(Duration::plus).orElseThrow();
+        Assertions.assertEquals(sumDuration, epic.getDuration());
     }
 
     @Test
