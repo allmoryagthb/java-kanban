@@ -7,16 +7,16 @@ class EpicTest {
 
     @Test
     void checkEpicsAreEqualsIfIdsAreEquals() {
-        Epic epic1 = new Epic(1, "Aaa", "Aaa");
-        Epic epic2 = new Epic(1, "Bbb", "Bbb");
+        Epic epic1 = new Epic(1, "Aaa", "Aaa", null, null);
+        Epic epic2 = new Epic(1, "Bbb", "Bbb", null, null);
 
         Assertions.assertEquals(epic1, epic2, "Epics are no equals");
     }
 
     @Test
     void checkEpicsNotEqualsIfIdsNotEquals() {
-        Epic epic1 = new Epic(123, "Aaa", "Aaa");
-        Epic epic2 = new Epic(321, "Aaa", "Aaa");
+        Epic epic1 = new Epic(123, "Aaa", "Aaa", null, null);
+        Epic epic2 = new Epic(321, "Aaa", "Aaa", null, null);
 
         Assertions.assertNotEquals(epic1, epic2, "Epics are equals");
     }

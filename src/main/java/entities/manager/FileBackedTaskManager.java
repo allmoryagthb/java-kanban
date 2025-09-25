@@ -151,6 +151,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (line.split(",")[1].equalsIgnoreCase(TaskTypes.TASK.getValue())) {
                     final Task task = CSVTaskFormat.getTaskFromString(line);
                     fileBackedTaskManager.tasks.put(task.getId(), task);
+                    fileBackedTaskManager.prioritizedTasks.add(task);
                 } else if (line.split(",")[1].equalsIgnoreCase(TaskTypes.EPIC.getValue())) {
                     final Epic epic = CSVTaskFormat.getEpicFromString(line);
                     fileBackedTaskManager.epics.put(epic.getId(), epic);
@@ -158,6 +159,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     final Subtask subtask = CSVTaskFormat.getSubtaskFromString(line);
                     fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
+                    fileBackedTaskManager.prioritizedTasks.add(subtask);
                 }
                 counter++;
 
@@ -185,13 +187,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.newLine();
 
             List.of(tasks, epics, subtasks).forEach(collection ->
-                    collection.forEach((key, value) -> {
-                        try {
-                            writer.write(CSVTaskFormat.toString(value));
-                            writer.newLine();
-                        } catch (IOException e) {
-                            throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
-                        }
+                    collection.values().forEach(value -> {
+                        if (value.getStartTime() != null && value.getEndTime() != null && value.getDuration() != null)
+                            try {
+                                writer.write(CSVTaskFormat.toString(value));
+                                writer.newLine();
+                            } catch (IOException e) {
+                                throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
+                            }
                     }));
             writer.newLine();
             writer.write(CSVTaskFormat.toString(historyManager));

@@ -6,9 +6,14 @@ import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class CSVTaskFormat {
 
@@ -16,26 +21,31 @@ public class CSVTaskFormat {
     }
 
     public static String getHeader() {
-        return "id,type,name,status,description,epic";
+        return "id,type,name,status,description,epic,startTime,duration,endTime";
     }
 
     public static String toString(Task task) {
         if (task instanceof Subtask) {
-            return String.format("%d,%s,%s,%s,%s,%d".formatted(
+            return String.format("%d,%s,%s,%s,%s,%d,%d,%d,%d".formatted(
                     task.getId(),
                     task.getClass().getSimpleName(),
                     task.getTitle(),
                     task.getStatus(),
                     task.getDescription(),
-                    ((Subtask) task).getEpicId()));
+                    ((Subtask) task).getEpicId(),
+                    task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
+                    task.getDuration().toMillis(),
+                    task.getEndTime().atZone(ZoneId.systemDefault()).toEpochSecond()));
         }
-        return String.format("%d,%s,%s,%s,%s".formatted(
+        return String.format("%d,%s,%s,%s,%s,%d,%d,%d".formatted(
                 task.getId(),
                 task.getClass().getSimpleName(),
                 task.getTitle(),
                 task.getStatus(),
-                task.getDescription()));
-
+                task.getDescription(),
+                task.getStartTime().atZone(ZoneId.systemDefault()).toEpochSecond(),
+                task.getDuration().toMillis(),
+                task.getEndTime().atZone(ZoneId.systemDefault()).toEpochSecond()));
     }
 
     public static String toString(Map<Integer, Task> collection) {
@@ -59,20 +69,39 @@ public class CSVTaskFormat {
 
     public static Task getTaskFromString(String line) {
         String[] splitLine = line.split(",");
-        return new Task(Integer.valueOf(splitLine[0]), splitLine[2], splitLine[4], getStatusFromString(splitLine[3]));
+        return new Task(
+                Integer.valueOf(splitLine[0]),
+                splitLine[2],
+                splitLine[4],
+                getStatusFromString(splitLine[3]),
+                getLocalDateTimeFromString(splitLine[5]),
+                getDurationFromString(splitLine[6]));
     }
+
 
     public static Epic getEpicFromString(String line) {
         String[] splitLine = line.split(",");
-        final Epic epic = new Epic(Integer.parseInt(splitLine[0]), splitLine[2], splitLine[4]);
+        final Epic epic = new Epic(
+                Integer.parseInt(splitLine[0]),
+                splitLine[2],
+                splitLine[4],
+                getLocalDateTimeFromString(splitLine[5]),
+                getDurationFromString(splitLine[6]));
         epic.setStatus(getStatusFromString(splitLine[3]));
+        epic.setEndTime(getLocalDateTimeFromString(splitLine[7]));
         return epic;
     }
 
     public static Subtask getSubtaskFromString(String line) {
         String[] splitLine = line.split(",");
-        return new Subtask(Integer.parseInt(splitLine[0]), splitLine[2],
-                splitLine[4], getStatusFromString(splitLine[3]), Integer.parseInt(splitLine[5]));
+        return new Subtask(Integer.parseInt(
+                splitLine[0]),
+                splitLine[2],
+                splitLine[4],
+                getStatusFromString(splitLine[3]),
+                Integer.parseInt(splitLine[5]),
+                getLocalDateTimeFromString(splitLine[6]),
+                getDurationFromString(splitLine[7]));
     }
 
 
@@ -83,6 +112,15 @@ public class CSVTaskFormat {
             return Status.IN_PROGRESS;
         else
             return Status.DONE;
+    }
+
+    private static LocalDateTime getLocalDateTimeFromString(String timestamp) {
+        return Instant.ofEpochSecond(Long.parseLong(timestamp))
+                .atZone(TimeZone.getDefault().toZoneId()).toLocalDateTime();
+    }
+
+    private static Duration getDurationFromString(String timestamp) {
+        return Duration.ofMillis(Long.parseLong(timestamp));
     }
 
 

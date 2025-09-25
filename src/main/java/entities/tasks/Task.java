@@ -2,6 +2,8 @@ package entities.tasks;
 
 import enums.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -9,20 +11,24 @@ public class Task {
     protected String title;
     protected String description;
     protected Status status;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String title, String description, Status status) {
+    public Task(String title, String description, Status status, LocalDateTime startTime, Duration duration) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.startTime = startTime;
+        this.duration = duration;
     }
 
-    public Task(Integer id, String title, String description, Status status) {
-        this(title, description, status);
+    public Task(Integer id, String title, String description, Status status, LocalDateTime startTime, Duration duration) {
+        this(title, description, status, startTime, duration);
         this.id = id;
     }
 
     public Task(Task task) {
-        this(task.id, task.title, task.description, task.status);
+        this(task.id, task.title, task.description, task.status, task.startTime, task.duration);
     }
 
     public Integer getId() {
@@ -55,6 +61,28 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Duration getDuration() {
+        return this.duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return this.startTime;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null)
+            return null;
+        return startTime.plus(duration);
     }
 
     @Override
