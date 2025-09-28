@@ -157,7 +157,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     fileBackedTaskManager.epics.put(epic.getId(), epic);
                 } else {
                     final Subtask subtask = CSVTaskFormat.getSubtaskFromString(line);
-                    fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
+                    fileBackedTaskManager.epics.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
                     fileBackedTaskManager.subtasks.put(subtask.getId(), subtask);
                     fileBackedTaskManager.prioritizedTasks.add(subtask);
                 }

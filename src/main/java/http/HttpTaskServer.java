@@ -1,31 +1,38 @@
 package http;
 
 import com.sun.net.httpserver.HttpServer;
+import entities.manager.FileBackedTaskManager;
 import http.handler.EpicHttpHandler;
 import http.handler.SubtaskHttpHandler;
 import http.handler.TaskHttpHandler;
+import util.Managers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
+    private static HttpServer httpServer;
+    private static final FileBackedTaskManager fileBackedTaskManager = Managers.getDefault();
 
     public static void main(String[] args) {
-        init();
+        start();
     }
 
-    private static void init() {
-        HttpServer httpServer = null;
+    public static void start() {
         try {
             httpServer = HttpServer.create();
             httpServer.bind(new InetSocketAddress(PORT), 0);
-            httpServer.createContext("/tasks", new TaskHttpHandler());
-            httpServer.createContext("/epics", new EpicHttpHandler());
-            httpServer.createContext("/subtasks", new SubtaskHttpHandler());
+            httpServer.createContext("/tasks", new TaskHttpHandler(fileBackedTaskManager));
+            httpServer.createContext("/epics", new EpicHttpHandler(fileBackedTaskManager));
+            httpServer.createContext("/subtasks", new SubtaskHttpHandler(fileBackedTaskManager));
             httpServer.start();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void stop() {
+        httpServer.stop(60);
     }
 }

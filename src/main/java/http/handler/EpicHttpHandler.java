@@ -2,6 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
+import entities.manager.FileBackedTaskManager;
 import entities.tasks.Epic;
 import entities.tasks.Subtask;
 
@@ -12,6 +13,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class EpicHttpHandler extends BaseHttpHandler {
+
+    public EpicHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
+        super(fileBackedTaskManager);
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

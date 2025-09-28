@@ -5,11 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import entities.manager.FileBackedTaskManager;
-import entities.tasks.Task;
-import enums.Status;
 import http.adapter.DurationAdapter;
 import http.adapter.LocalDateTimeAdapter;
-import util.Managers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,16 +14,15 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public abstract class BaseHttpHandler implements HttpHandler {
-    protected final Gson gson;
-    protected final FileBackedTaskManager fileBackedTaskManager = Managers.getDefault();
+    protected Gson gson;
+    protected FileBackedTaskManager fileBackedTaskManager;
 
-    public BaseHttpHandler() {
+    public BaseHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
+        this.fileBackedTaskManager = fileBackedTaskManager;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .serializeNulls()
                 .create();
-        fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
     }
 
     protected void sendText(HttpExchange h, String text) throws IOException {

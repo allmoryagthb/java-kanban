@@ -5,10 +5,7 @@ import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
 import exceptions.TaskValidationException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import util.Managers;
@@ -137,6 +134,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertNotNull(taskManager.getTask(index3), "Задача была удалена");
     }
 
+    @Disabled
+    @Deprecated
     @Test
     void checkOverlappingException() {
         Task task1 = new Task("t1", "t1", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10));

@@ -2,6 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
+import entities.manager.FileBackedTaskManager;
 import entities.tasks.Task;
 
 import java.io.IOException;
@@ -10,6 +11,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class TaskHttpHandler extends BaseHttpHandler {
+
+    public TaskHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
+        super(fileBackedTaskManager);
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
