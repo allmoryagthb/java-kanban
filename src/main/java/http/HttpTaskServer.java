@@ -11,13 +11,13 @@ import java.net.InetSocketAddress;
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private static HttpServer httpServer;
-    public static final FileBackedTaskManager fileBackedTaskManager = Managers.getDefault();
+    public final FileBackedTaskManager fileBackedTaskManager = Managers.getDefault();
 
     public static void main(String[] args) {
-        start();
+        new HttpTaskServer().start();
     }
 
-    public static void start() {
+    public void start() {
         try {
             httpServer = HttpServer.create();
             httpServer.bind(new InetSocketAddress(PORT), 0);
@@ -32,7 +32,7 @@ public class HttpTaskServer {
         }
     }
 
-    public static void stop() {
+    public void stop() {
         httpServer.stop(1);
     }
 }

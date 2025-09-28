@@ -18,14 +18,16 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class HttpTaskServerTaskTest {
+    private HttpTaskServer httpTaskServer;
     private FileBackedTaskManager manager;
     private final String BASE_URL = "http://localhost:8080";
     private Gson gson;
 
     @BeforeEach
     public void setUp() {
-        HttpTaskServer.start();
-        this.manager = HttpTaskServer.fileBackedTaskManager;
+        httpTaskServer = new HttpTaskServer();
+        httpTaskServer.start();
+        this.manager = httpTaskServer.fileBackedTaskManager;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
@@ -34,7 +36,7 @@ public class HttpTaskServerTaskTest {
 
     @AfterEach
     public void cleanUp() {
-        HttpTaskServer.stop();
+        httpTaskServer.stop();
     }
 
     @Test
@@ -144,7 +146,7 @@ public class HttpTaskServerTaskTest {
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        Assertions.assertEquals(406, response.statusCode(), "Некорректный код ответа");
-        Assertions.assertEquals("Задачи с id 123 не существует", response.body(), "Некорректное тело ответа");
+        Assertions.assertEquals(404, response.statusCode(), "Некорректный код ответа");
+        Assertions.assertEquals("Задача с id 123 не найдена", response.body(), "Некорректное тело ответа");
     }
 }
