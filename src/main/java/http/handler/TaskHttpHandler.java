@@ -80,5 +80,8 @@ public class TaskHttpHandler extends BaseHttpHandler {
         boolean result = fileBackedTaskManager.deleteTaskById(id);
         if (result)
             sendText(exchange, "Задача с id %d успешно удалена".formatted(id));
+        else {
+            sendNotFound(exchange, "Задача с id %d не найдена".formatted(id));
+        }
     }
 }

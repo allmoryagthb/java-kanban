@@ -325,25 +325,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void add(Task taskToAdd) {
         String pattern = "HH:mm";
-        prioritizedTasks.stream()
-                .filter(taskInSet -> isOverlapped(taskToAdd, taskInSet))
-                .findFirst()
-                .ifPresentOrElse(
-                        overlappedTask -> {
-                            String message = "Новая задача с id '%d' title = '%s'\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
-                                    "startTime : '%s'\n"
-                                            .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "endTime : '%s'\n"
-                                            .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "пересекается с существующей задачей с id '%d' title = '%s'\n"
-                                            .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
-                                    "startTime : '%s'\n"
-                                            .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "endTime : '%s'\n"
-                                            .formatted(overlappedTask.getEndTime().format(DateTimeFormatter.ofPattern(pattern)));
+        try {
+            prioritizedTasks.stream()
+                    .filter(taskInSet -> isOverlapped(taskToAdd, taskInSet))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            overlappedTask -> {
+                                String message = "Новая задача с id '%d' title = '%s'\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
+                                        "startTime : '%s'\n"
+                                                .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "endTime : '%s'\n"
+                                                .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "пересекается с существующей задачей с id '%d' title = '%s'\n"
+                                                .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
+                                        "startTime : '%s'\n"
+                                                .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "endTime : '%s'\n"
+                                                .formatted(overlappedTask.getEndTime().format(DateTimeFormatter.ofPattern(pattern)));
 
-                            throw new TaskValidationException(message);
-                        },
-                        () -> prioritizedTasks.add(taskToAdd));
+                                throw new TaskValidationException(message);
+                            },
+                            () -> prioritizedTasks.add(taskToAdd));
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
