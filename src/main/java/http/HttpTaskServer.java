@@ -1,6 +1,8 @@
 package http;
 
 import com.sun.net.httpserver.HttpServer;
+import http.handler.EpicHttpHandler;
+import http.handler.SubtaskHttpHandler;
 import http.handler.TaskHttpHandler;
 
 import java.io.IOException;
@@ -19,6 +21,8 @@ public class HttpTaskServer {
             httpServer = HttpServer.create();
             httpServer.bind(new InetSocketAddress(PORT), 0);
             httpServer.createContext("/tasks", new TaskHttpHandler());
+            httpServer.createContext("/epics", new EpicHttpHandler());
+            httpServer.createContext("/subtasks", new SubtaskHttpHandler());
             httpServer.start();
         } catch (IOException e) {
             throw new RuntimeException(e);

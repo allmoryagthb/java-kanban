@@ -12,12 +12,26 @@ public class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
     private static final DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Override
-    public void write(JsonWriter jsonWriter, LocalDateTime localDate) throws IOException {
-        jsonWriter.value(localDate.format(dtf));
+    public void write(JsonWriter jsonWriter, LocalDateTime localDateTime) throws IOException {
+        if (localDateTime == null) {
+            jsonWriter.nullValue();
+        } else {
+            jsonWriter.value(localDateTime.format(dtf));
+        }
     }
 
     @Override
     public LocalDateTime read(JsonReader jsonReader) throws IOException {
-        return LocalDateTime.parse(jsonReader.nextString(), dtf);
+        if (jsonReader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            jsonReader.nextNull();
+            return null;
+        }
+
+        String dateString = jsonReader.nextString();
+        if (dateString == null || dateString.trim().isEmpty()) {
+            return null;
+        }
+
+        return LocalDateTime.parse(dateString, dtf);
     }
 }

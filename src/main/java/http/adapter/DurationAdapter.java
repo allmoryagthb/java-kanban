@@ -10,11 +10,25 @@ import java.time.Duration;
 public class DurationAdapter extends TypeAdapter<Duration> {
     @Override
     public void write(JsonWriter jsonWriter, Duration duration) throws IOException {
-        jsonWriter.value(Duration.from(duration).toString());
+        if (duration == null) {
+            jsonWriter.nullValue();
+        } else {
+            jsonWriter.value(duration.toString());
+        }
     }
 
     @Override
     public Duration read(JsonReader jsonReader) throws IOException {
-        return Duration.parse(jsonReader.nextString());
+        if (jsonReader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            jsonReader.nextNull();
+            return null;
+        }
+
+        String durationString = jsonReader.nextString();
+        if (durationString == null || durationString.trim().isEmpty()) {
+            return null;
+        }
+
+        return Duration.parse(durationString);
     }
 }

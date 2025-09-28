@@ -33,6 +33,8 @@ public class Epic extends Task {
     }
 
     public Set<Integer> getSubtasksIds() {
+        if (subtasksIds == null)
+            return Set.of();
         return Set.copyOf(subtasksIds);
     }
 

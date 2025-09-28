@@ -122,7 +122,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(id);
         if (epic != null)
             historyManager.addTask(epic);
-        return new Epic(epics.get(id));
+        return epic;
     }
 
     @Override
@@ -138,7 +138,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean deleteEpicById(int id) {
-        if (epics.containsKey(id)) {
+        if (epics.containsKey(id) && !epics.get(id).getSubtasksIds().isEmpty()) {
             epics.get(id).getSubtasksIds()
                     .forEach(subtaskId -> {
                         prioritizedTasks.remove(subtasks.get(subtaskId));

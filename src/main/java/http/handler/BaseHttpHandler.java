@@ -24,6 +24,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .serializeNulls()
                 .create();
         fileBackedTaskManager.addTask(new Task("task title1", "task desc", Status.NEW, LocalDateTime.now(), Duration.ofMinutes(10)));
     }
