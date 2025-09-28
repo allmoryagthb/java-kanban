@@ -2,7 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import entities.manager.FileBackedTaskManager;
+import entities.manager.InMemoryTaskManager;
 import entities.tasks.Epic;
 import entities.tasks.Subtask;
 
@@ -14,8 +14,8 @@ import java.util.List;
 
 public class EpicHttpHandler extends BaseHttpHandler {
 
-    public EpicHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
-        super(fileBackedTaskManager);
+    public EpicHttpHandler(InMemoryTaskManager manager) {
+        super(manager);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class EpicHttpHandler extends BaseHttpHandler {
         exchange.sendResponseHeaders(200, 0);
 
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(gson.toJson(fileBackedTaskManager.getAllEpics()).getBytes(StandardCharsets.UTF_8));
+            os.write(gson.toJson(manager.getAllEpics()).getBytes(StandardCharsets.UTF_8));
         }
     }
 
     private void getEpicById(HttpExchange exchange, int id) throws IOException {
-        Epic epic = fileBackedTaskManager.getEpic(id);
+        Epic epic = manager.getEpic(id);
 
         if (epic == null) {
             sendNotFound(exchange, "Эпик с id %d не найден".formatted(id));
@@ -65,8 +65,8 @@ public class EpicHttpHandler extends BaseHttpHandler {
     }
 
     private void getEpicSubtasks(HttpExchange exchange, int id) throws IOException {
-        Epic epic = fileBackedTaskManager.getEpic(id);
-        List<Subtask> subtaskList = fileBackedTaskManager.getEpicSubtasks(id);
+        Epic epic = manager.getEpic(id);
+        List<Subtask> subtaskList = manager.getEpicSubtasks(id);
         if (epic == null) {
             sendNotFound(exchange, "Эпик с id %d не найден".formatted(id));
         } else {
@@ -87,10 +87,10 @@ public class EpicHttpHandler extends BaseHttpHandler {
         Epic inputEpic = gson.fromJson(body, Epic.class);
 
         if (inputEpic.getId() == null) {
-            int id = fileBackedTaskManager.addEpic(inputEpic);
+            int id = manager.addEpic(inputEpic);
             sendText(exchange, "Создан новый эпик с id %d".formatted(id), 201);
-        } else if (inputEpic.getId() > 0 && fileBackedTaskManager.getEpic(inputEpic.getId()) != null) {
-            boolean isSuccess = fileBackedTaskManager.updateEpic(inputEpic);
+        } else if (inputEpic.getId() > 0 && manager.getEpic(inputEpic.getId()) != null) {
+            boolean isSuccess = manager.updateEpic(inputEpic);
             if (isSuccess)
                 sendText(exchange, "Обновлен эпик с id %d".formatted(inputEpic.getId()));
             else {
@@ -102,7 +102,7 @@ public class EpicHttpHandler extends BaseHttpHandler {
     }
 
     private void deleteEpic(HttpExchange exchange, int id) throws IOException {
-        boolean result = fileBackedTaskManager.deleteEpicById(id);
+        boolean result = manager.deleteEpicById(id);
         if (result)
             sendText(exchange, "Эпик с id %d успешно удален".formatted(id));
         else {

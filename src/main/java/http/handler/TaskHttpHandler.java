@@ -2,7 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import entities.manager.FileBackedTaskManager;
+import entities.manager.InMemoryTaskManager;
 import entities.tasks.Task;
 
 import java.io.IOException;
@@ -12,8 +12,8 @@ import java.nio.charset.StandardCharsets;
 
 public class TaskHttpHandler extends BaseHttpHandler {
 
-    public TaskHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
-        super(fileBackedTaskManager);
+    public TaskHttpHandler(InMemoryTaskManager manager) {
+        super(manager);
     }
 
     @Override
@@ -38,12 +38,12 @@ public class TaskHttpHandler extends BaseHttpHandler {
         exchange.sendResponseHeaders(200, 0);
 
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(gson.toJson(fileBackedTaskManager.getAllTasks()).getBytes(StandardCharsets.UTF_8));
+            os.write(gson.toJson(manager.getAllTasks()).getBytes(StandardCharsets.UTF_8));
         }
     }
 
     private void getTaskById(HttpExchange exchange, int id) throws IOException {
-        Task task = fileBackedTaskManager.getTask(id);
+        Task task = manager.getTask(id);
 
         if (task == null) {
             sendNotFound(exchange, "Задача с id %d не найдена".formatted(id));
@@ -64,13 +64,13 @@ public class TaskHttpHandler extends BaseHttpHandler {
         Task inputTask = gson.fromJson(body, Task.class);
 
         if (inputTask.getId() == null) {
-            int id = fileBackedTaskManager.addTask(inputTask);
+            int id = manager.addTask(inputTask);
             if (id > 0)
                 sendText(exchange, "Создана новая задача с id %d".formatted(id), 201);
             else
                 sendHasOverlaps(exchange, "Произошла ошибка при добавлении новой задачи");
-        } else if (inputTask.getId() > 0 && fileBackedTaskManager.getTask(inputTask.getId()) != null) {
-            boolean isSuccess = fileBackedTaskManager.updateTask(inputTask);
+        } else if (inputTask.getId() > 0 && manager.getTask(inputTask.getId()) != null) {
+            boolean isSuccess = manager.updateTask(inputTask);
             if (isSuccess)
                 sendText(exchange, "Обновлена задача с id %d".formatted(inputTask.getId()), 200);
             else {
@@ -82,7 +82,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
     }
 
     private void deleteTask(HttpExchange exchange, int id) throws IOException {
-        boolean result = fileBackedTaskManager.deleteTaskById(id);
+        boolean result = manager.deleteTaskById(id);
         if (result)
             sendText(exchange, "Задача с id %d успешно удалена".formatted(id));
         else {

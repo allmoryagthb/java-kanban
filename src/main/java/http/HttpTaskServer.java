@@ -1,7 +1,7 @@
 package http;
 
 import com.sun.net.httpserver.HttpServer;
-import entities.manager.FileBackedTaskManager;
+import entities.manager.InMemoryTaskManager;
 import http.handler.*;
 import util.Managers;
 
@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
 public class HttpTaskServer {
     private static final int PORT = 8080;
     private static HttpServer httpServer;
-    public final FileBackedTaskManager fileBackedTaskManager = Managers.getDefault();
+    public final InMemoryTaskManager manager = Managers.getInMemoryTaskManager();
 
     public static void main(String[] args) {
         new HttpTaskServer().start();
@@ -21,11 +21,11 @@ public class HttpTaskServer {
         try {
             httpServer = HttpServer.create();
             httpServer.bind(new InetSocketAddress(PORT), 0);
-            httpServer.createContext("/tasks", new TaskHttpHandler(fileBackedTaskManager));
-            httpServer.createContext("/epics", new EpicHttpHandler(fileBackedTaskManager));
-            httpServer.createContext("/subtasks", new SubtaskHttpHandler(fileBackedTaskManager));
-            httpServer.createContext("/history", new HistoryHttpHandler(fileBackedTaskManager));
-            httpServer.createContext("/prioritized", new PrioritizedTaskHttpHandler(fileBackedTaskManager));
+            httpServer.createContext("/tasks", new TaskHttpHandler(manager));
+            httpServer.createContext("/epics", new EpicHttpHandler(manager));
+            httpServer.createContext("/subtasks", new SubtaskHttpHandler(manager));
+            httpServer.createContext("/history", new HistoryHttpHandler(manager));
+            httpServer.createContext("/prioritized", new PrioritizedTaskHttpHandler(manager));
             httpServer.start();
         } catch (IOException e) {
             throw new RuntimeException(e);

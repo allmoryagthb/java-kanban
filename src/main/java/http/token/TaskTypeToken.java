@@ -5,5 +5,5 @@ import entities.tasks.Task;
 
 import java.util.List;
 
-public class HistoryTypeToken extends TypeToken<List<Task>> {
+public class TaskTypeToken extends TypeToken<List<Task>> {
 }

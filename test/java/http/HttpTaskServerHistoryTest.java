@@ -4,7 +4,7 @@ import entities.tasks.Epic;
 import entities.tasks.Subtask;
 import entities.tasks.Task;
 import enums.Status;
-import http.token.HistoryTypeToken;
+import http.token.TaskTypeToken;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ public class HttpTaskServerHistoryTest extends HttpTaskServerTest {
                 .build();
         HttpResponse<String> response = httpClient.send(requestHistoryGet, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, response.statusCode(), "Некорректный код ответа");
-        List<Task> history = gson.fromJson(response.body(), new HistoryTypeToken().getType());
+        List<Task> history = gson.fromJson(response.body(), new TaskTypeToken().getType());
 
         Assertions.assertEquals(1, history.get(0).getId());
         Assertions.assertEquals(3, history.get(1).getId());

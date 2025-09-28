@@ -2,7 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import entities.manager.FileBackedTaskManager;
+import entities.manager.InMemoryTaskManager;
 import entities.tasks.Subtask;
 
 import java.io.IOException;
@@ -12,8 +12,8 @@ import java.nio.charset.StandardCharsets;
 
 public class SubtaskHttpHandler extends BaseHttpHandler {
 
-    public SubtaskHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
-        super(fileBackedTaskManager);
+    public SubtaskHttpHandler(InMemoryTaskManager manager) {
+        super(manager);
     }
 
     @Override
@@ -39,12 +39,12 @@ public class SubtaskHttpHandler extends BaseHttpHandler {
         exchange.sendResponseHeaders(200, 0);
 
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(gson.toJson(fileBackedTaskManager.getAllSubtasks()).getBytes(StandardCharsets.UTF_8));
+            os.write(gson.toJson(manager.getAllSubtasks()).getBytes(StandardCharsets.UTF_8));
         }
     }
 
     private void getSubtaskById(HttpExchange exchange, int id) throws IOException {
-        Subtask subtask = fileBackedTaskManager.getSubtask(id);
+        Subtask subtask = manager.getSubtask(id);
 
         if (subtask == null) {
             sendNotFound(exchange, "Подзадача с id %d не найдена".formatted(id));
@@ -65,13 +65,13 @@ public class SubtaskHttpHandler extends BaseHttpHandler {
         Subtask inputSubtask = gson.fromJson(body, Subtask.class);
 
         if (inputSubtask.getId() == null) {
-            int id = fileBackedTaskManager.addSubtask(inputSubtask);
+            int id = manager.addSubtask(inputSubtask);
             if (id > 0)
                 sendText(exchange, "Создана новая подзадача с id %d".formatted(id), 201);
             else
                 sendHasOverlaps(exchange, "Ошибка при создании подзадачи");
         } else {
-            boolean result = fileBackedTaskManager.updateSubtask(inputSubtask);
+            boolean result = manager.updateSubtask(inputSubtask);
             if (result)
                 sendText(exchange, "Обновлена подзадача с id %d".formatted(inputSubtask.getId()));
             else {
@@ -81,7 +81,7 @@ public class SubtaskHttpHandler extends BaseHttpHandler {
     }
 
     private void deleteSubtask(HttpExchange exchange, int id) throws IOException {
-        boolean result = fileBackedTaskManager.deleteSubtaskById(id);
+        boolean result = manager.deleteSubtaskById(id);
         if (result)
             sendText(exchange, "Подзадача с id %d успешно удалена".formatted(id));
         else {

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import entities.manager.FileBackedTaskManager;
+import entities.manager.InMemoryTaskManager;
 import http.adapter.DurationAdapter;
 import http.adapter.LocalDateTimeAdapter;
 
@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 
 public abstract class BaseHttpHandler implements HttpHandler {
     protected Gson gson;
-    protected FileBackedTaskManager fileBackedTaskManager;
+    protected InMemoryTaskManager manager;
 
-    public BaseHttpHandler(FileBackedTaskManager fileBackedTaskManager) {
-        this.fileBackedTaskManager = fileBackedTaskManager;
+    public BaseHttpHandler(InMemoryTaskManager manager) {
+        this.manager = manager;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
