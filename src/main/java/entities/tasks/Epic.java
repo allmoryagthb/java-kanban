@@ -29,6 +29,8 @@ public class Epic extends Task {
     }
 
     public void addSubtaskId(int id) {
+        if (subtasksIds == null)
+            subtasksIds = new HashSet<>();
         subtasksIds.add(id);
     }
 

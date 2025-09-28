@@ -227,7 +227,8 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
         updateEpicStatus(subtasks.get(id).getEpicId());
         updateEpicTimeStatuses(subtasks.get(id).getEpicId());
-        prioritizedTasks.remove(subtasks.get(id));
+        if (checkPrioritizedTasksContainsId(subtasks.get(id).getId()))
+            prioritizedTasks.remove(subtasks.get(id));
         return subtasks.remove(id) != null;
     }
 
@@ -352,5 +353,9 @@ public class InMemoryTaskManager implements TaskManager {
         } catch (TaskValidationException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private boolean checkPrioritizedTasksContainsId(int id) {
+        return prioritizedTasks.stream().anyMatch(e -> e.getId().equals(id));
     }
 }
