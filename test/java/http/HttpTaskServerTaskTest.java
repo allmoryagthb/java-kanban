@@ -1,13 +1,10 @@
 package http;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import entities.manager.FileBackedTaskManager;
 import entities.tasks.Task;
 import enums.Status;
-import http.adapter.DurationAdapter;
-import http.adapter.LocalDateTimeAdapter;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,27 +14,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class HttpTaskServerTaskTest {
-    private HttpTaskServer httpTaskServer;
-    private FileBackedTaskManager manager;
-    private final String BASE_URL = "http://localhost:8080";
-    private Gson gson;
-
-    @BeforeEach
-    public void setUp() {
-        httpTaskServer = new HttpTaskServer();
-        httpTaskServer.start();
-        this.manager = httpTaskServer.fileBackedTaskManager;
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
-    }
-
-    @AfterEach
-    public void cleanUp() {
-        httpTaskServer.stop();
-    }
+public class HttpTaskServerTaskTest extends HttpTaskServerTest {
 
     @Test
     @DisplayName("Когда добавляется новая задача, тогда возвращается ответ")
