@@ -72,7 +72,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
         } else if (inputTask.getId() > 0 && fileBackedTaskManager.getTask(inputTask.getId()) != null) {
             boolean isSuccess = fileBackedTaskManager.updateTask(inputTask);
             if (isSuccess)
-                sendText(exchange, "Обновлена задача с id %d".formatted(inputTask.getId()));
+                sendText(exchange, "Обновлена задача с id %d".formatted(inputTask.getId()), 200);
             else {
                 sendHasOverlaps(exchange, "Произошла ошибка при обновлении задачи");
             }
