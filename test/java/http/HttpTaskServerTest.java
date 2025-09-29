@@ -2,7 +2,7 @@ package http;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import entities.manager.InMemoryTaskManager;
+import entities.manager.TaskManager;
 import http.adapter.DurationAdapter;
 import http.adapter.LocalDateTimeAdapter;
 import org.junit.jupiter.api.AfterEach;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 public abstract class HttpTaskServerTest {
     protected HttpTaskServer httpTaskServer;
-    protected InMemoryTaskManager manager;
+    protected TaskManager manager;
     protected final String BASE_URL = "http://localhost:8080";
     protected Gson gson;
 

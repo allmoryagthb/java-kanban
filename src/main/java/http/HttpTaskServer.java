@@ -1,7 +1,7 @@
 package http;
 
 import com.sun.net.httpserver.HttpServer;
-import entities.manager.InMemoryTaskManager;
+import entities.manager.TaskManager;
 import http.handler.*;
 import util.Managers;
 
@@ -9,9 +9,19 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
-    private static final int PORT = 8080;
+    private final int PORT;
     private static HttpServer httpServer;
-    public final InMemoryTaskManager manager = Managers.getInMemoryTaskManager();
+    public final TaskManager manager;
+
+    public HttpTaskServer() {
+        this.PORT = 8080;
+        this.manager = Managers.getInMemoryTaskManager();
+    }
+
+    public HttpTaskServer(int portNum, TaskManager manager) {
+        this.PORT = portNum;
+        this.manager = manager;
+    }
 
     public static void main(String[] args) {
         new HttpTaskServer().start();

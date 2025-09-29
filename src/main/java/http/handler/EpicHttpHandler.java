@@ -2,7 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import entities.manager.InMemoryTaskManager;
+import entities.manager.TaskManager;
 import entities.tasks.Epic;
 import entities.tasks.Subtask;
 
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class EpicHttpHandler extends BaseHttpHandler {
 
-    public EpicHttpHandler(InMemoryTaskManager manager) {
+    public EpicHttpHandler(TaskManager manager) {
         super(manager);
     }
 

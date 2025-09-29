@@ -2,7 +2,7 @@ package http.handler;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
-import entities.manager.InMemoryTaskManager;
+import entities.manager.TaskManager;
 import entities.tasks.Task;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 public class TaskHttpHandler extends BaseHttpHandler {
 
-    public TaskHttpHandler(InMemoryTaskManager manager) {
+    public TaskHttpHandler(TaskManager manager) {
         super(manager);
     }
 
