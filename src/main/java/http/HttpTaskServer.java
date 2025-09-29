@@ -9,17 +9,17 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
-    private final int PORT;
+    private final int port;
     private static HttpServer httpServer;
     public final TaskManager manager;
 
     public HttpTaskServer() {
-        this.PORT = 8080;
+        this.port = 8080;
         this.manager = Managers.getInMemoryTaskManager();
     }
 
     public HttpTaskServer(int portNum, TaskManager manager) {
-        this.PORT = portNum;
+        this.port = portNum;
         this.manager = manager;
     }
 
@@ -30,7 +30,7 @@ public class HttpTaskServer {
     public void start() {
         try {
             httpServer = HttpServer.create();
-            httpServer.bind(new InetSocketAddress(PORT), 0);
+            httpServer.bind(new InetSocketAddress(port), 0);
             httpServer.createContext("/tasks", new TaskHttpHandler(manager));
             httpServer.createContext("/epics", new EpicHttpHandler(manager));
             httpServer.createContext("/subtasks", new SubtaskHttpHandler(manager));
