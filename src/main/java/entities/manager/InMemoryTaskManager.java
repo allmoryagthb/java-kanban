@@ -62,9 +62,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTask(int id) {
         Task task = tasks.get(id);
-        if (task != null)
-            historyManager.addTask(task);
-        return tasks.get(id);
+        if (task == null)
+            return null;
+        historyManager.addTask(task);
+        return new Task(task);
     }
 
     @Override
@@ -120,9 +121,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpic(int id) {
         Epic epic = epics.get(id);
-        if (epic != null)
-            historyManager.addTask(epic);
-        return new Epic(epics.get(id));
+        if (epic == null)
+            return null;
+        historyManager.addTask(epic);
+        return new Epic(epic);
     }
 
     @Override
@@ -138,7 +140,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean deleteEpicById(int id) {
-        if (epics.containsKey(id)) {
+        if (epics.containsKey(id) && !epics.get(id).getSubtasksIds().isEmpty()) {
             epics.get(id).getSubtasksIds()
                     .forEach(subtaskId -> {
                         prioritizedTasks.remove(subtasks.get(subtaskId));
@@ -171,7 +173,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtask.setId(++idCounter);
         subtasks.put(idCounter, subtask);
-        epics.get(subtask.getEpicId()).addSubtask(subtask.getId());
+        epics.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
         updateEpicStatus(subtask.getEpicId());
         updateEpicTimeStatuses(subtask.getEpicId());
         if (subtask.getStartTime() != null)
@@ -210,8 +212,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtask(int id) {
         Subtask subtask = subtasks.get(id);
-        if (subtask != null)
-            historyManager.addTask(subtask);
+        if (subtask == null)
+            return null;
+        historyManager.addTask(subtask);
         return new Subtask(subtasks.get(id));
     }
 
@@ -224,7 +227,8 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(id);
         updateEpicStatus(subtasks.get(id).getEpicId());
         updateEpicTimeStatuses(subtasks.get(id).getEpicId());
-        prioritizedTasks.remove(subtasks.get(id));
+        if (checkPrioritizedTasksContainsId(subtasks.get(id).getId()))
+            prioritizedTasks.remove(subtasks.get(id));
         return subtasks.remove(id) != null;
     }
 
@@ -245,6 +249,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
+    @Override
     public TreeSet<Task> getPrioritizedTasks() {
         return prioritizedTasks;
     }
@@ -325,25 +330,33 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void add(Task taskToAdd) {
         String pattern = "HH:mm";
-        prioritizedTasks.stream()
-                .filter(taskInSet -> isOverlapped(taskToAdd, taskInSet))
-                .findFirst()
-                .ifPresentOrElse(
-                        overlappedTask -> {
-                            String message = "Новая задача с id '%d' title = '%s'\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
-                                    "startTime : '%s'\n"
-                                            .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "endTime : '%s'\n"
-                                            .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "пересекается с существующей задачей с id '%d' title = '%s'\n"
-                                            .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
-                                    "startTime : '%s'\n"
-                                            .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
-                                    "endTime : '%s'\n"
-                                            .formatted(overlappedTask.getEndTime().format(DateTimeFormatter.ofPattern(pattern)));
+        try {
+            prioritizedTasks.stream()
+                    .filter(taskInSet -> isOverlapped(taskToAdd, taskInSet))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            overlappedTask -> {
+                                String message = "Новая задача с id '%d' title = '%s'\n".formatted(taskToAdd.getId(), taskToAdd.getTitle()) +
+                                        "startTime : '%s'\n"
+                                                .formatted(taskToAdd.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "endTime : '%s'\n"
+                                                .formatted(taskToAdd.getEndTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "пересекается с существующей задачей с id '%d' title = '%s'\n"
+                                                .formatted(overlappedTask.getId(), overlappedTask.getTitle()) +
+                                        "startTime : '%s'\n"
+                                                .formatted(overlappedTask.getStartTime().format(DateTimeFormatter.ofPattern(pattern))) +
+                                        "endTime : '%s'\n"
+                                                .formatted(overlappedTask.getEndTime().format(DateTimeFormatter.ofPattern(pattern)));
 
-                            throw new TaskValidationException(message);
-                        },
-                        () -> prioritizedTasks.add(taskToAdd));
+                                throw new TaskValidationException(message);
+                            },
+                            () -> prioritizedTasks.add(taskToAdd));
+        } catch (TaskValidationException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private boolean checkPrioritizedTasksContainsId(int id) {
+        return prioritizedTasks.stream().anyMatch(e -> e.getId().equals(id));
     }
 }

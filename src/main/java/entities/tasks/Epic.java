@@ -28,11 +28,15 @@ public class Epic extends Task {
         this.subtasksIds = epic.subtasksIds;
     }
 
-    public void addSubtask(int id) {
+    public void addSubtaskId(int id) {
+        if (subtasksIds == null)
+            subtasksIds = new HashSet<>();
         subtasksIds.add(id);
     }
 
     public Set<Integer> getSubtasksIds() {
+        if (subtasksIds == null)
+            return Set.of();
         return Set.copyOf(subtasksIds);
     }
 

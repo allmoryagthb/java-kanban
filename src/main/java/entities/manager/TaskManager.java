@@ -5,6 +5,7 @@ import entities.tasks.Subtask;
 import entities.tasks.Task;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
     int addTask(Task task);
@@ -46,4 +47,6 @@ public interface TaskManager {
     void deleteAllSubtasks();
 
     List<Task> getHistory();
+
+    TreeSet<Task> getPrioritizedTasks();
 }
